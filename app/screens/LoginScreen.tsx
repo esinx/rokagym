@@ -102,6 +102,7 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
 					placeholder="이메일"
 					name="email"
 					control={control}
+					autoCapitalize="none"
 				/>
 				<Spacer y={24} />
 				<Controlled.RGTextInput

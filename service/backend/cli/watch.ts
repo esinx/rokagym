@@ -1,9 +1,9 @@
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process'
-import path from 'path'
 
 import chalk from 'chalk'
 import chokidar from 'chokidar'
 import { build } from 'esbuild'
+import path from 'node:path'
 
 const log = (str: string) =>
 	console.log(`${chalk.green('[cinnamon-watcher]')} ${str}`)
@@ -68,19 +68,19 @@ const watcher = chokidar.watch([path.resolve(__dirname, '../', 'src/')], {
 })
 
 watcher
-	.on('add', (path) => {
-		log(`🆕 File ${path.split('/').at(-1)} has been added`)
+	.on('add', (_path) => {
+		log(`🆕 File ${_path?.split('/').at(-1)} has been added`)
 		refresh()
 	})
-	.on('change', (path) => {
-		log(`💾 File ${path.split('/').at(-1)} has been changed`)
+	.on('change', (_path) => {
+		log(`💾 File ${_path?.split('/').at(-1)} has been changed`)
 		refresh()
 	})
-	.on('unlink', (path) => {
-		log(`🗑️ File ${path.split('/').at(-1)} has been removed`)
+	.on('unlink', (_path) => {
+		log(`🗑️ File ${_path?.split('/').at(-1)} has been removed`)
 		refresh()
 	})
 
 process.on('SIGINT', () => {
-	forkedNodeProcess.kill()
+	forkedNodeProcess?.kill()
 })

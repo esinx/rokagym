@@ -1,0 +1,13 @@
+version: "3"
+services:
+  mysql:
+    image: mysql:8.0.30
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: supersecret
+      MYSQL_USER: rokagym
+      MYSQL_PASSWORD: cpekstlf1!
+      MYSQL_DATABASE: rokagym
+    ports:
+      - 3306:3306
