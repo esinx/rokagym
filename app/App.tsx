@@ -192,7 +192,16 @@ const App = () => {
 						/>
 					</RootStack.Group>
 					<RootStack.Group screenOptions={{ presentation: 'modal' }}>
-						<RootStack.Screen name="Settings" component={SettingsScreen} />
+						<RootStack.Screen
+							name="Settings"
+							component={SettingsScreen}
+							options={{
+								title: '설정',
+								headerStyle: {
+									shadowOpacity: 0,
+								},
+							}}
+						/>
 					</RootStack.Group>
 					<RootStack.Group screenOptions={{ presentation: 'modal' }}>
 						<RootStack.Screen
