@@ -1,0 +1,31 @@
+# common
+node_modules
+.env
+
+# app
+node_modules/
+.expo/
+dist/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# database
+database/data
+
+# backend
+service/backend/build
+service/backend/keys
+
+# serverless
+jspm_packages
+.serverless
+.esbuild
+
+# macOS
+.DS_Store

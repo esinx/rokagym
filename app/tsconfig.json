@@ -1,0 +1,17 @@
+{
+	"extends": "expo/tsconfig.base",
+	"compilerOptions": {
+		"baseUrl": "./",
+		"paths": {
+			"@/*": ["./*"],
+			"@backend/app": ["../service/backend/src/app.ts"]
+		},
+		"strict": true
+	},
+	"references": [
+		{
+			"path": "../service/backend"
+		}
+	],
+	"exclude": ["node_modules"]
+}

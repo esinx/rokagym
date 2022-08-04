@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  NONBINARY
+}
+
+enum MilGroup {
+  ARMY
+  NAVY
+  AIR_FORCE
+  MARINE_CORPS
+  MINISTRY_OF_DEFENSE
+}
+
+model Base {
+  id                   String   @id @default(uuid())
+  name                 String
+  group                MilGroup
+  inferredMealBaseCode String?
+  inferredUnitCode     String?
+  inferredRegionCode   String?
+  users                User[]
+}
+
+model User {
+  id                    String             @id @default(uuid())
+  name                  String
+  email                 String             @unique
+  password              String
+  rank                  String
+  birthday              DateTime
+  sex                   Sex
+  base                  Base               @relation(fields: [baseId], references: [id])
+  baseId                String
+  preferredMealBaseCode String?
+  preferredRegionCode   String?
+  refreshToken          RefreshToken?
+  workoutGoals          WorkoutGoal[]
+  workoutLogs           WorkoutLog[]
+  dailyWorkoutGoals     DailyWorkoutGoal[]
+}
+
+model RefreshToken {
+  userId    String   @id
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @db.VarChar(1024)
+  timestamp DateTime @updatedAt
+}
+
+enum WorkoutUnit {
+  WEIGHT
+  TIME
+  COUNT
+  DISTANCE
+}
+
+enum GoalDirection {
+  MORE
+  LESS
+}
+
+model WorkoutType {
+  id            String        @id
+  name          String
+  detailedName  String
+  isTested      Boolean // is this type of workout a part of the fitness test?
+  goalDirection GoalDirection // more: higher value the better, less: lower value the better
+  unit          WorkoutUnit
+
+  goals            WorkoutGoal[]
+  workoutLog       WorkoutLog[]
+  dailyWorkoutGoal DailyWorkoutGoal[]
+}
+
+model DailyWorkoutGoal {
+  id            String      @id @default(uuid())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  type          WorkoutType @relation(fields: [workoutTypeId], references: [id])
+  workoutTypeId String
+  value         Float
+  createdAt     DateTime    @default(now())
+}
+
+model WorkoutGoal {
+  id            String      @id @default(uuid())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  type          WorkoutType @relation(fields: [workoutTypeId], references: [id])
+  workoutTypeId String
+  value         Float
+  createdAt     DateTime    @default(now())
+}
+
+model WorkoutLog {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  type          WorkoutType @relation(fields: [workoutTypeId], references: [id])
+  workoutTypeId String
+
+  value Float // unit comes with workouttype
+
+  isVerified Boolean // false if user manual input, true if auto input
+
+  timestamp DateTime @default(now())
+  comment   String?
+}
