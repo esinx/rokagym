@@ -12,6 +12,7 @@ import Button from '@/components/Button'
 import Controlled from '@/components/controlled'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
 import PressableHighlight from '@/components/PressableHighlight'
+import Spinner from '@/components/Spinner'
 import COLOR from '@/utils/colors'
 import { InferQueryInput, InferQueryOutput, trpc } from '@/utils/trpc'
 
@@ -53,6 +54,7 @@ const BaseEntry: React.FC<{
 const SelectBaseScreen: React.FC<Props> = ({ navigation, route }) => {
 	const { client } = trpc.useContext()
 	const [searchResults, setSearchResults] = useState<Base[]>([])
+	const [isSearching, setIsSearching] = useState(false)
 
 	const {
 		register,
@@ -88,8 +90,15 @@ const SelectBaseScreen: React.FC<Props> = ({ navigation, route }) => {
 
 	const onSubmit = useCallback<SubmitHandler<FieldValues>>(
 		async ({ group, query }) => {
-			const res = await search(query, group as unknown as GroupType)
-			setSearchResults(res)
+			console.log({ group, query })
+			setIsSearching(true)
+			try {
+				const res = await search(query, group as unknown as GroupType)
+				setSearchResults(res)
+			} catch (error) {
+			} finally {
+				setIsSearching(false)
+			}
 		},
 		[setSearchResults, search],
 	)
@@ -197,13 +206,19 @@ const SelectBaseScreen: React.FC<Props> = ({ navigation, route }) => {
 							align-items: center;
 						`}
 					>
-						<Text
-							style={css`
-								color: ${COLOR.GRAY(400)};
-							`}
-						>
-							{isSubmitted ? '검색 결과가 없습니다.' : '검색어를 입력해주세요.'}
-						</Text>
+						{isSearching ? (
+							<Spinner />
+						) : (
+							<Text
+								style={css`
+									color: ${COLOR.GRAY(400)};
+								`}
+							>
+								{isSubmitted
+									? '검색 결과가 없습니다.'
+									: '검색어를 입력해주세요.'}
+							</Text>
+						)}
 					</View>
 				)}
 			/>

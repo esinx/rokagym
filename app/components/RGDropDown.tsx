@@ -64,7 +64,10 @@ const RGDropDown: React.FC<Props> = (props) => {
 			renderItem={(item, selected) => (
 				<RGDropDownItem text={item.label} selected={selected} />
 			)}
-			onChange={(v) => setValue(v)}
+			onChange={(v) => {
+				setValue(v)
+				passProps.onChange?.(v)
+			}}
 			autoScroll
 			showsVerticalScrollIndicator
 		/>

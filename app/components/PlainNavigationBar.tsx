@@ -1,22 +1,28 @@
-import { css } from '@emotion/native'
+import { css, ReactNativeStyle } from '@emotion/native'
 import { Text } from 'react-native'
 import { Image, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import COLOR from '@/utils/colors'
 
-const PlainNavigationBar: React.FC<{ title?: string }> = ({ title }) => {
+const PlainNavigationBar: React.FC<{
+	title?: string
+	withoutInsets?: boolean
+	style?: ReactNativeStyle
+}> = ({ title, withoutInsets, style }) => {
 	const { top: insetTop } = useSafeAreaInsets()
 
 	return (
 		<View
-			style={css`
-				padding: 12px;
-				background: #fff;
-			`}
+			style={[
+				css`
+					padding: 12px;
+					background: #fff;
+				`,
+				style,
+			]}
 		>
-			<View style={{ height: insetTop }} />
-
+			{!withoutInsets && <View style={{ height: insetTop }} />}
 			<View
 				style={css`
 					flex-direction: row;

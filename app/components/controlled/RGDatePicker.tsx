@@ -6,15 +6,15 @@ import {
 	FieldValues,
 } from 'react-hook-form'
 
-import RGDropDown from '@/components//RGDropDown'
+import RGDatePicker from '../RGDateInput'
 
 type Props<
 	TFieldValues extends FieldValues = FieldValues,
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > = Omit<ControllerProps<TFieldValues, TName>, 'render'> &
-	React.ComponentProps<typeof RGDropDown>
+	React.ComponentProps<typeof RGDatePicker>
 
-const ControlledRGDropDown = <
+const ControlledRGDatePicker = <
 	TFieldValues extends FieldValues = FieldValues,
 	TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 >(
@@ -45,17 +45,18 @@ const ControlledRGDropDown = <
 				fieldState,
 				formState,
 			}) => (
-				<RGDropDown
+				<RGDatePicker
 					{...dropDownProps}
-					onBlur={onBlur}
-					onChange={(item) => {
-						onChange(item.value)
+					onCancel={onBlur}
+					onConfirm={(date) => {
+						//@ts-expect-error
+						onChange(date.toString()) && onBlur()
 					}}
-					value={value}
+					date={value}
 				/>
 			)}
 		/>
 	)
 }
 
-export default ControlledRGDropDown
+export default ControlledRGDatePicker

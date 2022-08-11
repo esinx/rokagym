@@ -5,7 +5,7 @@ import { StackScreenProps } from '@react-navigation/stack'
 import { useSetAtom } from 'jotai'
 import { useCallback, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { SafeAreaView, Text, View } from 'react-native'
+import { SafeAreaView, Text } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { z } from 'zod'
 
@@ -13,8 +13,8 @@ import { RootStackParamList } from '@/App'
 import Button from '@/components/Button'
 import Controlled from '@/components/controlled'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
-import RGDatePicker from '@/components/RGDateInput'
-import RGDropDown from '@/components/RGDropDown'
+import PlainNavigationBar from '@/components/PlainNavigationBar'
+import PressableHighlight from '@/components/PressableHighlight'
 import Spacer from '@/components/Spacer'
 import { accessTokenAtom, refreshTokenAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
@@ -24,7 +24,7 @@ import { InferQueryOutput, trpc } from '@/utils/trpc'
 type Base = InferQueryOutput<'base.baseLookup'> extends (infer E)[] ? E : never
 
 const RANKS = [
-	'이등병',
+	'이병',
 	'일병',
 	'상병',
 	'병장',
@@ -50,8 +50,8 @@ type Props = StackScreenProps<RootStackParamList, 'Login'>
 const formSchema = z
 	.object({
 		name: z.string().min(1, '이름을 입력해주세요'),
-		birthday: z.date(),
-		sex: z.enum(['MALE', 'FEMALE', 'NONBINARY']),
+		birthday: z.string(),
+		sex: z.enum(['MALE', 'FEMALE']),
 		rank: z.string(),
 		baseId: z.string(),
 		email: z.string().email('이메일 형식을 확인해 주세요'),
@@ -76,7 +76,8 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 		...form
 	} = useForm<FieldValues>({
 		resolver: zodResolver(formSchema),
-		mode: 'onChange',
+		mode: 'all',
+		reValidateMode: 'onChange',
 		defaultValues: {
 			email: '',
 			password: '',
@@ -90,16 +91,21 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 
 	const createUserMutation = trpc.useMutation(['user.createUser'])
 	const createBaseMutation = trpc.useMutation(['base.createBase'])
-	const loginMutation = trpc.useMutation(['user.login'])
+
 	const setRefreshToken = useSetAtom(refreshTokenAtom)
 	const setAccessToken = useSetAtom(accessTokenAtom)
 
 	const onSubmit = useCallback<SubmitHandler<FieldValues>>(
-		async ({ email, password }) => {
+		async ({ email, password, baseId, birthday, name, rank, sex }) => {
 			try {
-				const data = await loginMutation.mutateAsync({
+				const data = await createUserMutation.mutateAsync({
 					email,
 					password,
+					baseId,
+					birthday: new Date(birthday),
+					name,
+					rank,
+					sex,
 				})
 				navigation.pop()
 				setImmediate(() => {
@@ -110,7 +116,7 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 				console.error(error)
 			}
 		},
-		[loginMutation, setRefreshToken, setAccessToken],
+		[createUserMutation, setRefreshToken, setAccessToken],
 	)
 
 	useFocusEffect(
@@ -132,6 +138,8 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 			.then((base) => base && setSelectedBase(base))
 	}, [form.watch('baseId')])
 
+	console.log({ errors, isValid })
+
 	return (
 		<SafeAreaView
 			style={css`
@@ -143,7 +151,16 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					flex: 1;
 					padding: 40px 20px;
 				`}
+				contentInset={{
+					bottom: 64,
+				}}
 			>
+				<PlainNavigationBar
+					withoutInsets
+					style={css`
+						padding: 12px 0;
+					`}
+				/>
 				<Text
 					style={css`
 						font-family: ${FONT.SPOQA('BOLD')};
@@ -166,6 +183,7 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					placeholder="someone@mail.com"
 					name="email"
 					keyboardType="email-address"
+					autoCapitalize="none"
 					control={control}
 					error={errors.email?.message}
 				/>
@@ -188,9 +206,35 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					error={errors.confirmPassword?.message}
 				/>
 				<Spacer y={16} />
-				<RGDatePicker label="생년월일" />
+				<Controlled.RGDatePicker
+					name="birthday"
+					control={control}
+					label="생년월일"
+				/>
 				<Spacer y={16} />
-				<RGDropDown
+				<Controlled.RGDropDown
+					name="sex"
+					control={control}
+					labelField="label"
+					valueField="value"
+					placeholder="성별 선택"
+					data={[
+						{
+							label: '남성',
+							value: 'MALE',
+						},
+						{
+							label: '여성',
+							value: 'FEMALE',
+						},
+					]}
+					keyboardAvoiding
+					dropdownPosition="top"
+				/>
+				<Spacer y={16} />
+				<Controlled.RGDropDown
+					name="rank"
+					control={control}
 					labelField="label"
 					valueField="value"
 					placeholder="계급 선택"
@@ -202,25 +246,7 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					dropdownPosition="top"
 				/>
 				<Spacer y={16} />
-				<View
-					style={css`
-						background: ${COLOR.GRAY(50)};
-						padding: 18px 10px;
-						border-radius: 8px;
-					`}
-				>
-					<Text
-						style={css`
-							font-size: 16px;
-							color: ${selectedBase?.name ? COLOR.GRAY(900) : COLOR.GRAY(300)};
-						`}
-					>
-						{selectedBase?.name ?? '부대를 선택해주세요'}
-					</Text>
-				</View>
-				<Spacer y={8} />
-				<Button
-					backgroundColor={COLOR.BRAND(300)}
+				<PressableHighlight
 					onPress={() =>
 						navigation.navigate('SelectBase', {
 							callback: async (base) => {
@@ -242,16 +268,21 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 							},
 						})
 					}
+					style={css`
+						background: ${COLOR.GRAY(50)};
+						padding: 18px 10px;
+						border-radius: 8px;
+					`}
 				>
 					<Text
 						style={css`
-							color: #fff;
+							font-size: 16px;
+							color: ${selectedBase?.name ? COLOR.GRAY(900) : COLOR.GRAY(300)};
 						`}
 					>
-						부대 선택하기
+						{selectedBase?.name ?? '부대를 선택해주세요'}
 					</Text>
-				</Button>
-
+				</PressableHighlight>
 				<Spacer y={16} />
 				<Button
 					disabled={!isValid}
