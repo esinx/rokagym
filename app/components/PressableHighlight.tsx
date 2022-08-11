@@ -1,5 +1,11 @@
 import React, { useState } from 'react'
-import { Pressable, PressableProps, StyleProp, ViewStyle } from 'react-native'
+import {
+	Keyboard,
+	Pressable,
+	PressableProps,
+	StyleProp,
+	ViewStyle,
+} from 'react-native'
 import tinycolor from 'tinycolor2'
 
 import COLOR from '@/utils/colors'
@@ -8,6 +14,7 @@ type Props = {
 	color?: string
 	highlightColor?: string
 	style?: StyleProp<ViewStyle>
+	dismissKeyboardOnPress?: boolean
 } & PressableProps
 
 const PressableHighlight: React.FC<Props> = (props) => {
@@ -21,6 +28,7 @@ const PressableHighlight: React.FC<Props> = (props) => {
 		onPressIn,
 		onPressOut,
 		children,
+		dismissKeyboardOnPress,
 		...passProps
 	} = props
 
@@ -30,9 +38,15 @@ const PressableHighlight: React.FC<Props> = (props) => {
 		<Pressable
 			{...passProps}
 			accessibilityRole="button"
+			// @ts-ignore
 			onPressIn={(e) => !disabled && setActive(true) && onPressIn?.(e)}
+			// @ts-ignore
 			onPressOut={(e) => !disabled && setActive(false) && onPressOut?.(e)}
-			onPress={(e) => !disabled && onPress?.(e)}
+			onPress={(e) => {
+				if (disabled) return
+				dismissKeyboardOnPress && Keyboard.dismiss()
+				onPress?.(e)
+			}}
 			onLongPress={(e) => !disabled && onLongPress?.(e)}
 			style={[
 				{

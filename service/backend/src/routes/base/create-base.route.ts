@@ -11,6 +11,7 @@ const createBaseRoute = createRouter().mutation('createBase', {
 			'AIR_FORCE',
 			'MARINE_CORPS',
 			'MINISTRY_OF_DEFENSE',
+			'UNKNOWN',
 		]),
 		inferredUnitCode: z.string().optional(),
 	}),

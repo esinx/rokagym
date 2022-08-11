@@ -195,7 +195,10 @@ const RGTextInput: React.FC<Props> = (props) => {
 					<PressableOpacity
 						activeOpacity={0.7}
 						style={{ marginLeft: 12 }}
-						onPress={() => setValue('')}
+						onPress={() => {
+							setValue('')
+							passProps?.onChangeText?.('')
+						}}
 						hitSlop={{ top: 30, bottom: 30, left: 12, right: 12 }}
 					>
 						<AntDesign name="closecircle" size={20} color={COLOR.GRAY(400)} />

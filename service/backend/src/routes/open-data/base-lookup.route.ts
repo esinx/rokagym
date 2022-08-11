@@ -18,15 +18,14 @@ const baseLookupRoute = createRouter().query('baseLookup', {
 		z.object({
 			id: z.string(),
 			name: z.string(),
-			group: z
-				.enum([
-					'ARMY',
-					'NAVY',
-					'AIR_FORCE',
-					'MARINE_CORPS',
-					'MINISTRY_OF_DEFENSE',
-				])
-				.optional(),
+			group: z.enum([
+				'ARMY',
+				'NAVY',
+				'AIR_FORCE',
+				'MARINE_CORPS',
+				'MINISTRY_OF_DEFENSE',
+				'UNKNOWN',
+			]),
 		}),
 	),
 	resolve: async ({ input }) => baseLookup(input),

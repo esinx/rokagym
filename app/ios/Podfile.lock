@@ -22,6 +22,78 @@ PODS:
     - EXJSONUtils
   - Expo (45.0.6):
     - ExpoModulesCore
+  - expo-dev-client (1.0.1):
+    - EXManifests
+    - expo-dev-launcher
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - EXUpdatesInterface
+  - expo-dev-launcher (1.0.1):
+    - EXManifests
+    - expo-dev-launcher/Main (= 1.0.1)
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - ExpoModulesCore
+    - EXUpdatesInterface
+    - React-Core
+  - expo-dev-launcher/Main (1.0.1):
+    - EXManifests
+    - expo-dev-launcher/Unsafe
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - ExpoModulesCore
+    - EXUpdatesInterface
+    - React-Core
+  - expo-dev-launcher/Unsafe (1.0.1):
+    - EXManifests
+    - expo-dev-menu
+    - expo-dev-menu-interface
+    - ExpoModulesCore
+    - EXUpdatesInterface
+    - React-Core
+  - expo-dev-menu (1.0.1):
+    - expo-dev-menu/Main (= 1.0.1)
+  - expo-dev-menu-interface (0.7.0)
+  - expo-dev-menu/GestureHandler (1.0.1)
+  - expo-dev-menu/Main (1.0.1):
+    - EXManifests
+    - expo-dev-menu-interface
+    - expo-dev-menu/Vendored
+    - ExpoModulesCore
+    - React-Core
+  - expo-dev-menu/Reanimated (1.0.1):
+    - DoubleConversion
+    - FBLazyVector
+    - FBReactNativeSpec
+    - glog
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-callinvoker
+    - React-Core
+    - React-Core/DevSupport
+    - React-Core/RCTWebSocket
+    - React-CoreModules
+    - React-cxxreact
+    - React-jsi
+    - React-jsiexecutor
+    - React-jsinspector
+    - React-RCTActionSheet
+    - React-RCTAnimation
+    - React-RCTBlob
+    - React-RCTImage
+    - React-RCTLinking
+    - React-RCTNetwork
+    - React-RCTSettings
+    - React-RCTText
+    - React-RCTVibration
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - expo-dev-menu/SafeAreaView (1.0.1)
+  - expo-dev-menu/Vendored (1.0.1):
+    - expo-dev-menu/GestureHandler
+    - expo-dev-menu/Reanimated
+    - expo-dev-menu/SafeAreaView
   - ExpoKeepAwake (10.1.1):
     - ExpoModulesCore
   - ExpoLinearGradient (11.3.0):
@@ -324,6 +396,8 @@ PODS:
   - React-jsinspector (0.68.2)
   - React-logger (0.68.2):
     - glog
+  - react-native-date-picker (4.2.5):
+    - React-Core
   - react-native-flipper (0.157.0):
     - React-Core
   - react-native-pager-view (5.4.15):
@@ -451,6 +525,10 @@ DEPENDENCIES:
   - EXLocation (from `../node_modules/expo-location/ios`)
   - EXManifests (from `../node_modules/expo-manifests/ios`)
   - Expo (from `../node_modules/expo/ios`)
+  - expo-dev-client (from `../node_modules/expo-dev-client/ios`)
+  - expo-dev-launcher (from `../node_modules/expo-dev-launcher`)
+  - expo-dev-menu (from `../node_modules/expo-dev-menu`)
+  - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
@@ -499,6 +577,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-flipper (from `../node_modules/react-native-flipper`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -564,6 +643,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-manifests/ios"
   Expo:
     :path: "../node_modules/expo/ios"
+  expo-dev-client:
+    :path: "../node_modules/expo-dev-client/ios"
+  expo-dev-launcher:
+    :path: "../node_modules/expo-dev-launcher"
+  expo-dev-menu:
+    :path: "../node_modules/expo-dev-menu"
+  expo-dev-menu-interface:
+    :path: "../node_modules/expo-dev-menu-interface/ios"
   ExpoKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoLinearGradient:
@@ -612,6 +699,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-date-picker:
+    :path: "../node_modules/react-native-date-picker"
   react-native-flipper:
     :path: "../node_modules/react-native-flipper"
   react-native-pager-view:
@@ -668,6 +757,10 @@ SPEC CHECKSUMS:
   EXLocation: f9811c5a78e07894429e7e0620b30f2395564fc0
   EXManifests: 0c6134b7b6f3236a93a778c3f44ba1cfb3f9fa3d
   Expo: 3df4af520db4f37f9821ba732ce9ac0dc67bb7b8
+  expo-dev-client: 56e713e8ab330e3d2522e4d1c568dc1f5e0116b1
+  expo-dev-launcher: 3c6059a3f2cc3093a2a22d23e57cb54bcba5b33f
+  expo-dev-menu: ba291761e0ffbdd7011fd33576687f939cadf044
+  expo-dev-menu-interface: db5495dd7206992a94ce35c51391f139ae26f2b7
   ExpoKeepAwake: c0c494b442ecd8122974c13b93ccfb57bd408e88
   ExpoLinearGradient: 0debcf7d6cd7fea3050c218544f0db2de9a64f42
   ExpoModulesCore: e4278a668e8c13c0269ed8b8a4200989deea2973
@@ -704,6 +797,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
+  react-native-date-picker: 55193347d8d0f40948f441ffd4e5db6f0a8fbe13
   react-native-flipper: cc9cdf47db2bbe0d9227eeec4f93e2290e55674b
   react-native-pager-view: b1914469643f40042e65d78cbf3d3dfebd6fb0d9
   react-native-safe-area-context: f98b0b16d1546d208fc293b4661e3f81a895afd9
@@ -727,6 +821,6 @@ SPEC CHECKSUMS:
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 683fa174c57fd5b29a6d647148ceebf77c4e4d9d
+PODFILE CHECKSUM: c97d0bc369f0c95e7a0a43dde0d880c181e80e8d
 
 COCOAPODS: 1.11.3

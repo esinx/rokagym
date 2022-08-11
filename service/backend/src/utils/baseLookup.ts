@@ -26,11 +26,12 @@ const groupMap = {
 	AIR_FORCE: '0000010003',
 	MARINE_CORPS: '0000010004',
 	MINISTRY_OF_DEFENSE: '0000010005',
+	UNKNOWN: '0000',
 }
 
 const baseLookup = async (
 	input: z.infer<typeof zInputType>,
-): Promise<{ id: string; name: string }[]> => {
+): Promise<{ id: string; name: string; group: keyof typeof groupMap }[]> => {
 	const groupCode = groupMap[input.group]
 	const data = await got(
 		'https://www.thecamp.or.kr/join/selectSearchNormalUnitListA.do',
@@ -47,8 +48,9 @@ const baseLookup = async (
 			id: normalUnitCd,
 			name: unitNm,
 			group:
-				Object.entries(groupMap).find(([_, code]) => grpCd === code)?.[0] ??
-				undefined,
+				(Object.entries(groupMap).find(
+					([_, code]) => grpCd === code,
+				)?.[0] as keyof typeof groupMap) ?? 'UNKNOWN',
 		}))
 		.sort((a, b) => {
 			if (a.group === input.group && b.group !== input.group) {

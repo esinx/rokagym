@@ -3,9 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useFocusEffect } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
 import { useSetAtom } from 'jotai'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { SafeAreaView, Text } from 'react-native'
+import { SafeAreaView, Text, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { z } from 'zod'
 
@@ -13,12 +13,15 @@ import { RootStackParamList } from '@/App'
 import Button from '@/components/Button'
 import Controlled from '@/components/controlled'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
+import RGDatePicker from '@/components/RGDateInput'
 import RGDropDown from '@/components/RGDropDown'
 import Spacer from '@/components/Spacer'
 import { accessTokenAtom, refreshTokenAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
-import { trpc } from '@/utils/trpc'
+import { InferQueryOutput, trpc } from '@/utils/trpc'
+
+type Base = InferQueryOutput<'base.baseLookup'> extends (infer E)[] ? E : never
 
 const RANKS = [
 	'이등병',
@@ -81,7 +84,12 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 		},
 	})
 
+	const [selectedBase, setSelectedBase] = useState<Base>()
+
+	const { client } = trpc.useContext()
+
 	const createUserMutation = trpc.useMutation(['user.createUser'])
+	const createBaseMutation = trpc.useMutation(['base.createBase'])
 	const loginMutation = trpc.useMutation(['user.login'])
 	const setRefreshToken = useSetAtom(refreshTokenAtom)
 	const setAccessToken = useSetAtom(accessTokenAtom)
@@ -113,6 +121,16 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 			})
 		}, [navigation, route.params.trap]),
 	)
+
+	useEffect(() => {
+		const baseId = form.getValues('baseId')
+		if (!baseId) return
+		client
+			.query('base.getBaseById', {
+				id: baseId,
+			})
+			.then((base) => base && setSelectedBase(base))
+	}, [form.watch('baseId')])
 
 	return (
 		<SafeAreaView
@@ -170,6 +188,8 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					error={errors.confirmPassword?.message}
 				/>
 				<Spacer y={16} />
+				<RGDatePicker label="생년월일" />
+				<Spacer y={16} />
 				<RGDropDown
 					labelField="label"
 					valueField="value"
@@ -182,13 +202,43 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					dropdownPosition="top"
 				/>
 				<Spacer y={16} />
-
+				<View
+					style={css`
+						background: ${COLOR.GRAY(50)};
+						padding: 18px 10px;
+						border-radius: 8px;
+					`}
+				>
+					<Text
+						style={css`
+							font-size: 16px;
+							color: ${selectedBase?.name ? COLOR.GRAY(900) : COLOR.GRAY(300)};
+						`}
+					>
+						{selectedBase?.name ?? '부대를 선택해주세요'}
+					</Text>
+				</View>
+				<Spacer y={8} />
 				<Button
 					backgroundColor={COLOR.BRAND(300)}
 					onPress={() =>
 						navigation.navigate('SelectBase', {
-							callback: (baseId) => {
-								console.log({ baseId })
+							callback: async (base) => {
+								let id = base.id
+								if (!id) {
+									const { group, name, inferredUnitCode } = base
+									const res = await createBaseMutation.mutateAsync({
+										group,
+										name,
+										// type fuckup fix
+										inferredUnitCode:
+											typeof inferredUnitCode === 'string'
+												? inferredUnitCode
+												: undefined,
+									})
+									id = res.id
+								}
+								form.setValue('baseId', id)
 							},
 						})
 					}
@@ -201,6 +251,7 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 						부대 선택하기
 					</Text>
 				</Button>
+
 				<Spacer y={16} />
 				<Button
 					disabled={!isValid}

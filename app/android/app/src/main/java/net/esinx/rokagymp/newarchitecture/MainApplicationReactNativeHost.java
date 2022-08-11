@@ -1,4 +1,4 @@
-package net.esinx.rokagym.newarchitecture;
+package net.esinx.rokagymp.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import net.esinx.rokagym.BuildConfig;
-import net.esinx.rokagym.newarchitecture.components.MainComponentsRegistry;
-import net.esinx.rokagym.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import net.esinx.rokagymp.BuildConfig;
+import net.esinx.rokagymp.newarchitecture.components.MainComponentsRegistry;
+import net.esinx.rokagymp.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

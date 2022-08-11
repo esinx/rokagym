@@ -1,6 +1,7 @@
 import { css } from '@emotion/native'
 import React, { useState } from 'react'
 import {
+	Keyboard,
 	Pressable,
 	StyleProp,
 	TouchableWithoutFeedbackProps,
@@ -18,6 +19,7 @@ type Props = TouchableWithoutFeedbackProps & {
 	disabled?: boolean
 	loading?: boolean
 	spinnerProps?: React.ComponentProps<typeof Spinner>
+	dismissKeyboardOnPress?: boolean
 }
 
 const Button: React.FC<Props> = (props) => {
@@ -32,7 +34,7 @@ const Button: React.FC<Props> = (props) => {
 		onPressIn,
 		onPressOut,
 		children,
-		spinnerProps,
+		dismissKeyboardOnPress,
 		...passProps
 	} = props
 
@@ -42,9 +44,15 @@ const Button: React.FC<Props> = (props) => {
 		<Pressable
 			{...passProps}
 			accessibilityRole="button"
+			// @ts-ignore
 			onPressIn={(e) => !disabled && setActive(true) && onPressIn?.(e)}
+			// @ts-ignore
 			onPressOut={(e) => !disabled && setActive(false) && onPressOut?.(e)}
-			onPress={(e) => !disabled && onPress?.(e)}
+			onPress={(e) => {
+				if (disabled) return
+				dismissKeyboardOnPress && Keyboard.dismiss()
+				onPress?.(e)
+			}}
 			onLongPress={(e) => !disabled && onLongPress?.(e)}
 			style={[
 				css`

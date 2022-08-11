@@ -1,4 +1,4 @@
-package net.esinx.rokagym;
+package net.esinx.rokagymp;
 
 import android.os.Build;
 import android.os.Bundle;

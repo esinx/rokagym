@@ -13,7 +13,7 @@ class MainComponentsRegistry
  public:
   // Adapt it to the package you used for your Java class.
   constexpr static auto kJavaDescriptor =
-      "Lnet/esinx/rokagym/newarchitecture/components/MainComponentsRegistry;";
+      "Lnet/esinx/rokagymp/newarchitecture/components/MainComponentsRegistry;";
 
   static void registerNatives();
 

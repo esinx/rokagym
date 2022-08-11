@@ -21,6 +21,14 @@ const baseLookupRoute = createRouter().query('baseLookup', {
 			// inferredUnitCode could or could not exist for registered bases
 			inferredUnitCode: z.string().optional().nullable(),
 			name: z.string(),
+			group: z.enum([
+				'ARMY',
+				'NAVY',
+				'AIR_FORCE',
+				'MARINE_CORPS',
+				'MINISTRY_OF_DEFENSE',
+				'UNKNOWN',
+			]),
 		}),
 	),
 	resolve: async ({ input, ctx: { prisma } }) => {
@@ -39,7 +47,8 @@ const baseLookupRoute = createRouter().query('baseLookup', {
 			({ id }) =>
 				!prismaResult.some(({ inferredUnitCode }) => id === inferredUnitCode),
 		)
-		const convertedResult = filteredApiResult.map(({ id, name }) => ({
+		const convertedResult = filteredApiResult.map(({ id, name, group }) => ({
+			group,
 			inferredUnitCode: id,
 			name,
 		}))

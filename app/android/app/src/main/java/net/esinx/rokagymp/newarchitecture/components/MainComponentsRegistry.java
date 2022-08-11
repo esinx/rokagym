@@ -1,4 +1,4 @@
-package net.esinx.rokagym.newarchitecture.components;
+package net.esinx.rokagymp.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

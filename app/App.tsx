@@ -32,6 +32,9 @@ import TrainingScreen from '@/screens/TrainingScreen'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
 import { navigationRef } from '@/utils/root-navigation'
+import { InferQueryOutput } from '@/utils/trpc'
+
+type Base = InferQueryOutput<'base.baseLookup'> extends (infer E)[] ? E : never
 
 export type RootStackParamList = {
 	Tab: undefined
@@ -41,7 +44,7 @@ export type RootStackParamList = {
 	Settings: undefined
 	FitnessTestCriteria: undefined
 	Hospital: undefined
-	SelectBase: { callback?: (baseId: string) => void }
+	SelectBase: { callback?: (base: Base) => void }
 }
 
 export type TabParamList = {
@@ -133,6 +136,12 @@ const App = () => {
 			}
 		}
 	}, [fontsLoaded])
+
+	useEffect(() => {
+		setTimeout(() => {
+			setShowEnv(false)
+		}, 10000)
+	}, [])
 
 	if (!fontsLoaded) {
 		return null

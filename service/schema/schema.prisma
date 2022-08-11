@@ -22,6 +22,7 @@ enum MilGroup {
   AIR_FORCE
   MARINE_CORPS
   MINISTRY_OF_DEFENSE
+  UNKNOWN
 }
 
 model Base {

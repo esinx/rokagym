@@ -1,6 +1,6 @@
 {
 	"expo": {
-		"name": "rokagym",
+		"name": "체력단련실",
 		"slug": "rokagym",
 		"version": "1.0.0",
 		"orientation": "portrait",
@@ -17,7 +17,7 @@
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "net.esinx.rokagym",
+			"bundleIdentifier": "net.esinx.rokagymp",
 			"buildNumber": "1.0.0"
 		},
 		"android": {
@@ -25,7 +25,7 @@
 				"foregroundImage": "./assets/adaptive-icon.png",
 				"backgroundColor": "#FFFFFF"
 			},
-			"package": "net.esinx.rokagym"
+			"package": "net.esinx.rokagymp"
 		},
 		"web": {
 			"favicon": "./assets/favicon.png"

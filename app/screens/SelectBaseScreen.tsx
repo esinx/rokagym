@@ -33,12 +33,12 @@ const BaseEntry: React.FC<{
 }> = ({ base, onPress }) => (
 	<PressableHighlight
 		color="#FFF"
-		highlightColor={COLOR.BRAND(200)}
+		highlightColor={COLOR.BRAND(100)}
 		style={css`
 			padding: 16px;
-			background: #fff;
 			border-radius: 8px;
 		`}
+		onPress={() => onPress?.(base)}
 	>
 		<Text
 			style={css`
@@ -94,6 +94,14 @@ const SelectBaseScreen: React.FC<Props> = ({ navigation, route }) => {
 		[setSearchResults, search],
 	)
 
+	const handlePress = useCallback(
+		(base: Base) => {
+			route.params.callback?.(base)
+			navigation.pop()
+		},
+		[route.params.callback],
+	)
+
 	return (
 		<View
 			style={css`
@@ -138,6 +146,7 @@ const SelectBaseScreen: React.FC<Props> = ({ navigation, route }) => {
 						}}
 					/>
 					<Button
+						dismissKeyboardOnPress
 						backgroundColor={COLOR.BRAND(300)}
 						disabled={!isValid}
 						onPress={handleSubmit(onSubmit)}
@@ -174,7 +183,9 @@ const SelectBaseScreen: React.FC<Props> = ({ navigation, route }) => {
 						`}
 					/>
 				)}
-				renderItem={({ item }) => <BaseEntry base={item} />}
+				renderItem={({ item }) => (
+					<BaseEntry base={item} onPress={handlePress} />
+				)}
 				keyExtractor={(item, idx) =>
 					item.id ?? item.inferredUnitCode ?? String(idx)
 				}
