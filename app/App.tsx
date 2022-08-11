@@ -5,8 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { Provider as JotaiProvider } from 'jotai'
-import { Suspense, useEffect } from 'react'
-import { Platform, View } from 'react-native'
+import { Suspense, useEffect, useState } from 'react'
+import { Platform, Text, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { setCustomText, setCustomTextInput } from 'react-native-global-props'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -103,6 +103,8 @@ const TabScreen = () => {
 }
 
 const App = () => {
+	const [showEnv, setShowEnv] = useState(true)
+
 	const [fontsLoaded] = useFonts({
 		ROKA:
 			Platform.OS === 'web'
@@ -209,14 +211,30 @@ const App = () => {
 							component={FitnessTestCriteriaScreen}
 						/>
 						<RootStack.Screen name="Hospital" component={HospitalScreen} />
-						<RootStack.Screen name="SelectBase" component={SelectBaseScreen} />
+						<RootStack.Screen
+							name="SelectBase"
+							component={SelectBaseScreen}
+							options={{
+								title: '부대찾기',
+								headerStyle: {
+									shadowOpacity: 0,
+								},
+							}}
+						/>
 					</RootStack.Group>
 					<RootStack.Group screenOptions={{ presentation: 'modal' }}>
 						<RootStack.Screen name="Login" component={LoginScreen} />
-						<RootStack.Screen name="Signup" component={SignupScreen} />
+						<RootStack.Screen
+							name="Signup"
+							component={SignupScreen}
+							options={{
+								title: '회원가입',
+							}}
+						/>
 					</RootStack.Group>
 				</RootStack.Navigator>
 			</NavigationContainer>
+			{showEnv && <Text>Backend:{process.env.BACKEND_BASE_URL}</Text>}
 		</MultiProvider>
 	)
 }

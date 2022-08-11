@@ -33,10 +33,15 @@ const TRPCProvider: React.FC = ({ children }) => {
 			}),
 		[],
 	)
-
 	const rawTrpcClient = useMemo(
-		() => trpc.createClient({ url: process.env.BACKEND_BASE_URL }),
+		() =>
+			trpc.createClient({
+				url: 'http://10.10.10.84:3030' ?? process.env.BACKEND_BASE_URL,
+			}),
 		[],
+	)
+	console.log(
+		`TRPCClient: process.env.BACKEND_BASE_URL=${process.env.BACKEND_BASE_URL}`,
 	)
 	const trpcClient = useMemo(
 		() =>

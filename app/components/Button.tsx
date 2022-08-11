@@ -1,9 +1,9 @@
+import { css } from '@emotion/native'
 import React, { useState } from 'react'
 import {
 	Pressable,
 	StyleProp,
 	TouchableWithoutFeedbackProps,
-	View,
 	ViewStyle,
 } from 'react-native'
 import tinycolor from 'tinycolor2'
@@ -46,39 +46,33 @@ const Button: React.FC<Props> = (props) => {
 			onPressOut={(e) => !disabled && setActive(false) && onPressOut?.(e)}
 			onPress={(e) => !disabled && onPress?.(e)}
 			onLongPress={(e) => !disabled && onLongPress?.(e)}
+			style={[
+				css`
+					flex-direction: row;
+					justify-content: center;
+					align-items: center;
+					padding: 16px 48px;
+					border-radius: 8px;
+				`,
+				style,
+				{
+					backgroundColor: disabled
+						? COLOR.GRAY(150)
+						: active
+						? activeColor ?? tinycolor(backgroundColor).darken(4).toHexString()
+						: backgroundColor,
+				},
+			]}
 		>
-			<View
-				style={[
-					{
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'center',
-						alignContent: 'center',
-						paddingVertical: 16,
-						paddingHorizontal: 48,
-						borderRadius: 8,
-					},
-					style,
-					{
-						backgroundColor: disabled
-							? COLOR.GRAY(150)
-							: active
-							? activeColor ??
-							  tinycolor(backgroundColor).darken(4).toHexString()
-							: backgroundColor,
-					},
-				]}
-			>
-				{loading ? (
-					<Spinner
-						foregroundColor="#FFF"
-						backgroundColor="#DDD"
-						{...spinnerProps}
-					/>
-				) : (
-					children
-				)}
-			</View>
+			{loading ? (
+				<Spinner
+					foregroundColor="#FFF"
+					backgroundColor="#DDD"
+					{...spinnerProps}
+				/>
+			) : (
+				children
+			)}
 		</Pressable>
 	)
 }

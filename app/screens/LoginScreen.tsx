@@ -42,7 +42,7 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
 		},
 	})
 
-	const loginMutation = trpc.useMutation(['user.login'])
+	const loginMutation = trpc.useMutation('user.login')
 
 	const setRefreshToken = useSetAtom(refreshTokenAtom)
 	const setAccessToken = useSetAtom(accessTokenAtom)

@@ -6,7 +6,7 @@ import { DropdownProps } from 'react-native-element-dropdown/lib/typescript/comp
 
 import COLOR from '@/utils/colors'
 
-type ManagedProps = 'value' | 'onChange'
+type ManagedProps = 'value' | 'onChange' | 'labelField' | 'valueField'
 
 type Props = {} & Omit<DropdownProps, ManagedProps> &
 	Partial<Pick<DropdownProps, ManagedProps>>
@@ -33,11 +33,18 @@ const RGDropDownItem: React.FC<{ text: string; selected?: boolean }> = ({
 )
 
 const RGDropDown: React.FC<Props> = (props) => {
-	const { value: _value, ...passProps } = props
+	const {
+		value: _value,
+		labelField = 'label',
+		valueField = 'value',
+		...passProps
+	} = props
 	const [value, setValue] = useState(_value ?? null)
 	return (
 		<Dropdown
 			{...passProps}
+			labelField={labelField}
+			valueField={valueField}
 			value={value}
 			style={css`
 				padding: 10px;
