@@ -3,6 +3,8 @@ declare global {
 		interface ProcessEnv {
 			AWS_ROKAGYM_MEAL_TABLE_NAME: string
 			AWS_ROKAGYM_MEAL_REGION: string
+			AWS_ROKAGYM_RANKING_TABLE_NAME: string
+			AWS_ROKAGYM_RANKING_REGION: string
 			PRIVATE_KEY: string
 			PUBLIC_KEY: string
 			MND_OPEN_DATA_API_KEY: string

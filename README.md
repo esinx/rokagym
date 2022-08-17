@@ -47,4 +47,16 @@
 - https://feathericons.com/
 - https://css.gg/app
 
+- https://thenounproject.com/icon/fitness-coach-1926490/
+- https://thenounproject.com/icon/coach-2420008/
+- https://thenounproject.com/icon/run-2975840/
+- https://thenounproject.com/icon/barbell-1934475/
+
 ## TODO
+
+- Frontend
+  - Workout Log (after workout) screen
+  - Assessment Screen
+  - User Update Screen
+    - Set Base Location
+    - Set Base Meal Data Code

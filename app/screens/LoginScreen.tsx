@@ -5,7 +5,7 @@ import { StackScreenProps } from '@react-navigation/stack'
 import { useSetAtom } from 'jotai'
 import { useCallback } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { SafeAreaView, Text, View } from 'react-native'
+import { Alert, SafeAreaView, Text, View } from 'react-native'
 import { z } from 'zod'
 
 import { RootStackParamList } from '@/App'
@@ -60,7 +60,11 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
 					setAccessToken(data.accessToken)
 				})
 			} catch (error) {
-				console.error(error)
+				Alert.alert('로그인 오류', '로그인 정보가 올바르지 않습니다', [
+					{
+						text: '확인',
+					},
+				])
 			}
 		},
 		[loginMutation, setRefreshToken, setAccessToken],

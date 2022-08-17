@@ -64,6 +64,7 @@ enum WorkoutUnit {
   WEIGHT
   TIME
   COUNT
+  RM
   DISTANCE
 }
 
@@ -92,6 +93,8 @@ model DailyWorkoutGoal {
   type          WorkoutType @relation(fields: [workoutTypeId], references: [id])
   workoutTypeId String
   value         Float
+  extraValue    String?
+  comment       String?
   createdAt     DateTime    @default(now())
 }
 
@@ -102,6 +105,8 @@ model WorkoutGoal {
   type          WorkoutType @relation(fields: [workoutTypeId], references: [id])
   workoutTypeId String
   value         Float
+  extraValue    String?
+  comment       String?
   createdAt     DateTime    @default(now())
 }
 
@@ -114,10 +119,12 @@ model WorkoutLog {
   type          WorkoutType @relation(fields: [workoutTypeId], references: [id])
   workoutTypeId String
 
-  value Float // unit comes with workouttype
+  value      Float // unit comes with workouttype
+  extraValue String?
 
   isVerified Boolean // false if user manual input, true if auto input
 
   timestamp DateTime @default(now())
+  duration  Float
   comment   String?
 }

@@ -1,8 +1,13 @@
+import { css } from '@emotion/native'
 import { ReactNode, Suspense, SuspenseProps } from 'react'
 import {
 	ErrorBoundary,
 	ErrorBoundaryPropsWithRender,
 } from 'react-error-boundary'
+import { View } from 'react-native'
+
+import ErrorBox from '@/components/ErrorBox'
+import Spinner from '@/components/Spinner'
 
 type ExceptFallbackErrorBoundaryAttributes = Omit<
 	ErrorBoundaryPropsWithRender,
@@ -11,8 +16,8 @@ type ExceptFallbackErrorBoundaryAttributes = Omit<
 
 type AsyncBoundaryProps = {
 	children: ReactNode
-	ErrorFallback: ErrorBoundaryPropsWithRender['fallbackRender']
-	SuspenseFallback: SuspenseProps['fallback']
+	ErrorFallback?: ErrorBoundaryPropsWithRender['fallbackRender']
+	SuspenseFallback?: SuspenseProps['fallback']
 } & ExceptFallbackErrorBoundaryAttributes
 
 const AsyncBoundary: React.FC<AsyncBoundaryProps> = ({
@@ -22,13 +27,35 @@ const AsyncBoundary: React.FC<AsyncBoundaryProps> = ({
 	...restErrorBoundaryAttributes
 }) => (
 	<ErrorBoundary
-		fallbackRender={ErrorFallback}
+		fallbackRender={
+			ErrorFallback ??
+			(({ error }) => {
+				return (
+					<ErrorBox errorText="오류가 발생했습니다" errorCode={error.message} />
+				)
+			})
+		}
 		onError={(error) => {
 			console.error(error)
 		}}
 		{...restErrorBoundaryAttributes}
 	>
-		<Suspense fallback={SuspenseFallback}>{children}</Suspense>
+		<Suspense
+			fallback={
+				SuspenseFallback ?? (
+					<View
+						style={css`
+							align-items: center;
+							justify-content: center;
+						`}
+					>
+						<Spinner />
+					</View>
+				)
+			}
+		>
+			{children}
+		</Suspense>
 	</ErrorBoundary>
 )
 

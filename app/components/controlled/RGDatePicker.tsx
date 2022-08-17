@@ -49,8 +49,9 @@ const ControlledRGDatePicker = <
 					{...dropDownProps}
 					onCancel={onBlur}
 					onConfirm={(date) => {
-						//@ts-expect-error
-						onChange(date.toString()) && onBlur()
+						console.log(date.toString())
+						onChange(date.toString())
+						onBlur()
 					}}
 					date={value}
 				/>

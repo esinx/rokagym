@@ -15,6 +15,9 @@ const chunkArray = <T>(arr: T[], by: number): T[][] => {
 
 type ExtractPromise<T> = T extends Promise<infer U> ? U : never;
 
+// fix 2136 fuckup
+const BASES = BASE_CODES.filter((code) => code !== "2136");
+
 export const storeMealData: EventBridgeHandler<
   "net.esinx.rokagym.meal-data-update",
   {},
@@ -24,61 +27,64 @@ export const storeMealData: EventBridgeHandler<
     `[net.esinx.rokagym.meal-data-update] executed at: ${event.time}`
   );
 
-  const mealFetcher = new MealFetcher(process.env.API_KEY);
+  try {
+    const mealFetcher = new MealFetcher(process.env.API_KEY);
 
-  const preloadAllMeals = await Promise.all(
-    BASE_CODES.map(async (code) => [code, await mealFetcher.preloadMeal(code)])
-  );
+    const preloadAllMeals = await Promise.all(
+      BASES.map(async (code) => [code, await mealFetcher.preloadMeal(code)])
+    );
 
-  const meals: Record<
-    typeof BASE_CODES[number],
-    ExtractPromise<ReturnType<typeof mealFetcher.preloadMeal>>
-  > = Object.fromEntries(preloadAllMeals);
+    const meals: Record<
+      typeof BASES[number],
+      ExtractPromise<ReturnType<typeof mealFetcher.preloadMeal>>
+    > = Object.fromEntries(preloadAllMeals);
 
-  // D-1 ~ D+1
-  const todayInKST = DateTime.fromJSDate(new Date(), { zone: "Asia/Seoul" });
-  const daysFormatted = [
-    todayInKST,
-    todayInKST.plus(
-      Duration.fromObject({
-        days: 1,
-      })
-    ),
-    todayInKST.minus(
-      Duration.fromObject({
-        days: 1,
-      })
-    ),
-  ].map((day) => day.toFormat("yyyy-MM-dd"));
+    // D-1 ~ D+1
+    const todayInKST = DateTime.fromJSDate(new Date(), { zone: "Asia/Seoul" });
+    const daysFormatted = [
+      todayInKST,
+      todayInKST.plus(
+        Duration.fromObject({
+          days: 1,
+        })
+      ),
+      todayInKST.minus(
+        Duration.fromObject({
+          days: 1,
+        })
+      ),
+    ].map((day) => day.toFormat("yyyy-MM-dd"));
 
-  const allPairs = BASE_CODES.flatMap((code) =>
-    daysFormatted.map((day) => [`${code}-${day}`, meals[code].get(day)])
-  ) as [string, MealData][];
+    const allPairs = BASES.flatMap((code) =>
+      daysFormatted.map((day) => [`${code}-${day}`, meals[code].get(day)])
+    ) as [string, MealData][];
 
-  const chunks = chunkArray(allPairs, 25);
+    const chunks = chunkArray(allPairs, 25);
 
-  // create DynamoDB connection, write data
-  const dynamoDBClient = new DynamoDBClient({
-    region: process.env.REGION ?? "ap-northeast-2",
-  });
+    // create DynamoDB connection, write data
+    const dynamoDBClient = new DynamoDBClient({
+      region: process.env.REGION ?? "ap-northeast-2",
+    });
 
-  const documentClient = DynamoDBDocument.from(dynamoDBClient);
+    const documentClient = DynamoDBDocument.from(dynamoDBClient);
 
-  const execAll = await Promise.all(
-    chunks.map((chunk) =>
-      documentClient.batchWrite({
-        RequestItems: {
-          "rokagym-meal": chunk.map(([id, content]) => ({
-            PutRequest: {
-              Item: { id, ...content },
-            },
-          })),
-        },
-      })
-    )
-  );
-
-  console.log(`Execution result: ${JSON.stringify(execAll)}`);
-  dynamoDBClient.destroy();
+    const execAll = await Promise.all(
+      chunks.map((chunk) =>
+        documentClient.batchWrite({
+          RequestItems: {
+            "rokagym-meal": chunk.map(([id, content]) => ({
+              PutRequest: {
+                Item: { id, ...content },
+              },
+            })),
+          },
+        })
+      )
+    );
+    console.log(`Execution result: ${JSON.stringify(execAll)}`);
+    dynamoDBClient.destroy();
+  } catch (error) {
+    console.error(error);
+  }
   return;
 };

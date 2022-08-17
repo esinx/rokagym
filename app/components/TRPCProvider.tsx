@@ -1,3 +1,4 @@
+import Constants from 'expo-constants'
 import { useSetAtom } from 'jotai'
 import { useMemo } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
@@ -6,6 +7,9 @@ import useCurrentAtomValue from '@/hooks/use-current-atom-value'
 import { accessTokenAtom, refreshTokenAtom } from '@/store/atoms/token'
 import { verifyJWT } from '@/utils/jwt'
 import { trpc } from '@/utils/trpc'
+
+export const BACKEND_BASE_URL =
+	Constants.manifest?.extra?.backendBaseURL ?? 'https://3030.esinx.net'
 
 const TRPCProvider: React.FC = ({ children }) => {
 	const refreshTokenRef = useCurrentAtomValue(refreshTokenAtom)
@@ -17,6 +21,7 @@ const TRPCProvider: React.FC = ({ children }) => {
 			new QueryClient({
 				defaultOptions: {
 					queries: {
+						cacheTime: 0,
 						suspense: true,
 						useErrorBoundary: true,
 						onError: (error) => {
@@ -36,17 +41,15 @@ const TRPCProvider: React.FC = ({ children }) => {
 	const rawTrpcClient = useMemo(
 		() =>
 			trpc.createClient({
-				url: 'http://10.10.10.84:3030' ?? process.env.BACKEND_BASE_URL,
+				url: BACKEND_BASE_URL,
 			}),
 		[],
 	)
-	console.log(
-		`TRPCClient: process.env.BACKEND_BASE_URL=${process.env.BACKEND_BASE_URL}`,
-	)
+	console.log(`TRPCClient: backend=${BACKEND_BASE_URL}`)
 	const trpcClient = useMemo(
 		() =>
 			trpc.createClient({
-				url: process.env.BACKEND_BASE_URL,
+				url: BACKEND_BASE_URL,
 				headers: async () => {
 					// not logged-in.
 					if (!accessTokenRef.current || !refreshTokenRef.current) return {}

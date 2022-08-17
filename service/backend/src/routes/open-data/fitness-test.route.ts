@@ -3,14 +3,14 @@ import { z } from 'zod'
 import fetchOpenData, { OpenDataAPI } from '@/utils/fetchOpenData'
 import createRouter from '@/utils/routers/createRouter'
 
-const TestType = z.enum(['2m-pushup', '2m-curlup', '3km-run', 'unknown'])
+const TestType = z.enum(['2m-pushup', '2m-situp', '3km-run', 'unknown'])
 type TestType = z.infer<typeof TestType>
 const getTestType = (input: string): TestType => {
 	switch (true) {
 		case input.includes('팔굽혀펴기'):
 			return TestType.enum['2m-pushup']
 		case input.includes('윗몸일으키기'):
-			return TestType.enum['2m-curlup']
+			return TestType.enum['2m-situp']
 		case input.includes('3Km달리기'):
 			return TestType.enum['3km-run']
 	}

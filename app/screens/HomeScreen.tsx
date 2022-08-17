@@ -6,6 +6,7 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { useAtomValue } from 'jotai'
+import { DateTime } from 'luxon'
 import React, { useCallback, useLayoutEffect, useRef } from 'react'
 import {
 	Animated,
@@ -22,11 +23,18 @@ import ErrorBox from '@/components/ErrorBox'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
 import HomeNavigationBar from '@/components/HomeNavigationBar'
 import PressableHighlight from '@/components/PressableHighlight'
+import Spinner from '@/components/Spinner'
 import { hasValidTokensAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
 import getGroupNameFromCode from '@/utils/group-name'
-import { trpc } from '@/utils/trpc'
+import { InferQueryOutput, trpc } from '@/utils/trpc'
+import {
+	getApparentTemperature,
+	getApparentTemperatureComment,
+	getDiscomfortIndex,
+	getDiscomfortIndexComment,
+} from '@/utils/weather'
 
 const { height: screenHeight, width: screenWidth } = Dimensions.get('window')
 
@@ -48,7 +56,7 @@ const Badge: React.FC<{
 		>
 			<Text
 				style={css`
-					font-family: 'SpoqaHanSansNeoBold';
+					font-family: ${FONT.SPOQA('BOLD')};
 					font-weight: 700;
 					color: #fff;
 				`}
@@ -59,144 +67,133 @@ const Badge: React.FC<{
 	)
 }
 
-const BottomSheetContent = () => (
-	<View>
-		<View>
-			<Text
-				style={css`
-					font-family: 'SpoqaHanSansNeoBold';
-					font-size: 20px;
-				`}
-			>
-				오늘의 날씨
-			</Text>
-			<View
-				style={css`
-					margin-top: 4px;
-					padding: 20px;
-					background: #fafafa;
-					border-radius: 20px;
-				`}
-			>
-				<Text
-					style={css`
-						font-family: 'SpoqaHanSansNeoBold';
-						font-size: 20px;
-					`}
-				>
-					자외선 지수: 높음 / 체감온도: 33도
-				</Text>
+const BottomSheetContent = () => {
+	const weatherQuery = trpc.useQuery([
+		'opendata.weather.getWeatherForecast',
+		{
+			baseDate: DateTime.now().startOf('day').toJSDate(),
+			categories: ['TMP', 'WSD', 'REH', 'PCP'],
+			coordinates: {
+				nx: 90,
+				ny: 90,
+			},
+		},
+	])
 
+	useFocusEffect(
+		useCallback(() => {
+			weatherQuery.refetch()
+		}, []),
+	)
+
+	const getCurrentData = useCallback(
+		(
+			values: InferQueryOutput<'opendata.weather.getWeatherForecast'>['TMP'],
+		) => {
+			const now = DateTime.now()
+			return values.reduce((acc, cur) => {
+				const a = Math.abs(
+					now.diff(DateTime.fromJSDate(acc.time)).as('seconds'),
+				)
+				const b = Math.abs(
+					now.diff(DateTime.fromJSDate(cur.time)).as('seconds'),
+				)
+				return a > b ? cur : acc
+			}, values[0])
+		},
+		[],
+	)
+
+	const discomfortIdx = weatherQuery.data
+		? Math.round(
+				getDiscomfortIndex(
+					Number(getCurrentData(weatherQuery.data.TMP).value),
+					Number(getCurrentData(weatherQuery.data.REH).value) / 100,
+				),
+		  )
+		: null
+	const apparentTemperature = weatherQuery.data
+		? Math.round(
+				getApparentTemperature(
+					Number(getCurrentData(weatherQuery.data.TMP).value),
+					Number(getCurrentData(weatherQuery.data.WSD).value),
+				),
+		  )
+		: null
+
+	return (
+		<View>
+			<View>
 				<Text
 					style={css`
-						margin-top: 10px;
-						font-family: 'SpoqaHanSansNeo';
-						font-size: 12px;
-						color: #888;
+						font-family: ${FONT.SPOQA('BOLD')};
+						font-size: 20px;
 					`}
 				>
-					야외활동 시 자외선과 열사병에 유의하세요. 수분을 충분히 섭취하고 30분
-					활동 후에는 시원한 곳에서 휴식을 취해요.
+					오늘의 날씨
 				</Text>
+				<View
+					style={css`
+						margin-top: 4px;
+						padding: 20px;
+						background: #fafafa;
+						border-radius: 20px;
+					`}
+				>
+					<Text
+						style={css`
+							font-family: ${FONT.SPOQA('BOLD')};
+							font-size: 20px;
+						`}
+					>
+						{!discomfortIdx
+							? '불쾌지수 기상 데이터가 없습니다.'
+							: `불쾌지수: ${discomfortIdx}`}
+					</Text>
+					<Text
+						style={css`
+							margin-top: 10px;
+							font-size: 12px;
+							color: #888;
+						`}
+					>
+						{discomfortIdx ? getDiscomfortIndexComment(discomfortIdx) : ''}
+					</Text>
+				</View>
+				<View
+					style={css`
+						margin-top: 4px;
+						padding: 20px;
+						background: #fafafa;
+						border-radius: 20px;
+					`}
+				>
+					<Text
+						style={css`
+							font-family: ${FONT.SPOQA('BOLD')};
+							font-size: 20px;
+						`}
+					>
+						{!apparentTemperature
+							? '체감온도 기상 데이터가 없습니다.'
+							: `체감온도: ${apparentTemperature}℃`}
+					</Text>
+					<Text
+						style={css`
+							margin-top: 10px;
+							font-size: 12px;
+							color: #888;
+						`}
+					>
+						{apparentTemperature
+							? getApparentTemperatureComment(apparentTemperature)
+							: ''}
+					</Text>
+				</View>
 			</View>
 		</View>
-		<View
-			style={css`
-				margin-top: 12px;
-			`}
-		>
-			<Text
-				style={css`
-					font-family: 'SpoqaHanSansNeoBold';
-					font-size: 20px;
-				`}
-			>
-				오늘의 체력단련
-			</Text>
-			<View
-				style={css`
-					margin-top: 4px;
-					padding: 20px;
-					background: #fafafa;
-					border-radius: 20px;
-				`}
-			>
-				<Text
-					style={css`
-						font-family: 'SpoqaHanSansNeoBold';
-						font-size: 20px;
-					`}
-				>
-					윗몸일으키기(2분): 120회
-				</Text>
-				<Text
-					style={css`
-						margin-top: 10px;
-						font-family: 'SpoqaHanSansNeo';
-						font-size: 12px;
-						color: #888;
-					`}
-				>
-					이전 기록: 120회 / 강도: 매우 높음
-				</Text>
-			</View>
-			<View
-				style={css`
-					margin-top: 4px;
-					padding: 20px;
-					background: #fafafa;
-					border-radius: 20px;
-				`}
-			>
-				<Text
-					style={css`
-						font-family: 'SpoqaHanSansNeoBold';
-						font-size: 20px;
-					`}
-				>
-					팔굽혀펴기(2분): 120회
-				</Text>
-				<Text
-					style={css`
-						margin-top: 10px;
-						font-family: 'SpoqaHanSansNeo';
-						font-size: 12px;
-						color: #888;
-					`}
-				>
-					이전 기록: 120회 / 강도: 매우 높음
-				</Text>
-			</View>
-			<View
-				style={css`
-					margin-top: 4px;
-					padding: 20px;
-					background: #fafafa;
-					border-radius: 20px;
-				`}
-			>
-				<Text
-					style={css`
-						font-family: 'SpoqaHanSansNeoBold';
-						font-size: 20px;
-					`}
-				>
-					뜀걸음(3KM): &lt; 11:00
-				</Text>
-				<Text
-					style={css`
-						margin-top: 10px;
-						font-family: 'SpoqaHanSansNeo';
-						font-size: 12px;
-						color: #888;
-					`}
-				>
-					이전 기록: 11:32 / 특급
-				</Text>
-			</View>
-		</View>
-	</View>
-)
+	)
+}
 
 const Header = () => {
 	const profileQuery = trpc.useQuery(['user.profile'])
@@ -206,8 +203,6 @@ const Header = () => {
 			profileQuery.refetch()
 		}, []),
 	)
-
-	console.log(profileQuery.dataUpdatedAt, profileQuery.data)
 
 	if (typeof profileQuery.data !== 'object') return null
 
@@ -225,7 +220,7 @@ const Header = () => {
 			<Text
 				style={css`
 					margin-top: 4px;
-					font-family: 'ROKA';
+					font-family: ${FONT.ROKA};
 					font-size: 54px;
 					text-align: right;
 					color: #fff;
@@ -295,8 +290,6 @@ const HomeScreen = () => {
 	const hasValidTokens = useAtomValue(hasValidTokensAtom)
 
 	const scroll = useRef(new Animated.Value(0)).current
-
-	console.log('HomeScreen:', { hasValidTokens })
 
 	useLayoutEffect(() => {
 		navigation.setOptions({
@@ -449,7 +442,33 @@ const HomeScreen = () => {
 							background: #fff;
 						`}
 					>
-						<BottomSheetContent />
+						<AsyncBoundary
+							ErrorFallback={({ error }) => (
+								<View
+									style={css`
+										padding: 40px;
+									`}
+								>
+									<ErrorBox
+										errorText="오늘의 정보 로딩 중 오류가 발생했습니다!"
+										errorCode={error.message}
+									/>
+								</View>
+							)}
+							SuspenseFallback={
+								<View
+									style={css`
+										min-height: ${screenHeight / 2}px;
+										justify-content: center;
+										align-items: center;
+									`}
+								>
+									<Spinner />
+								</View>
+							}
+						>
+							{hasValidTokens && <BottomSheetContent />}
+						</AsyncBoundary>
 					</View>
 					{Platform.OS === 'ios' && (
 						<View

@@ -87,7 +87,6 @@ const groupAgeFitnessTestData = (age: number) => (data: FitnessTestData[]) => {
 			}
 		}, {}),
 	)
-
 	const [myAgeRangeKey, myAgeRange] = grouped.find(([key, value]) =>
 		rangeContains(value[0].ageRange, age),
 	)!
@@ -121,7 +120,7 @@ const FitnessTestDataTab: React.FC = () => {
 									: range
 							) as StringTuple
 						case '2m-pushup':
-						case '2m-curlup':
+						case '2m-situp':
 							return (
 								range[1] === '999' ? [range[0], ''] : range
 							) as StringTuple
@@ -140,9 +139,9 @@ const FitnessTestDataTab: React.FC = () => {
 			},
 
 			{
-				name: '윗몸일으켜기(2분)',
+				name: '윗몸일으키기(2분)',
 				data: groupData(
-					processedData.filter(({ type }) => type === '2m-curlup'),
+					processedData.filter(({ type }) => type === '2m-situp'),
 				),
 			},
 
@@ -167,7 +166,7 @@ const FitnessTestDataTab: React.FC = () => {
 				>
 					<Text
 						style={css`
-							font-family: ROKA;
+							font-family: ${FONT.ROKA};
 							color: #ccc;
 							font-size: 24px;
 						`}
@@ -176,7 +175,7 @@ const FitnessTestDataTab: React.FC = () => {
 					</Text>
 					<Text
 						style={css`
-							font-family: ROKA;
+							font-family: ${FONT.ROKA};
 							font-size: 32px;
 						`}
 					>
@@ -194,7 +193,7 @@ const FitnessTestDataTab: React.FC = () => {
 					>
 						<Text
 							style={css`
-								font-family: SpoqaHanSansNeoBold;
+								font-family: ${FONT.SPOQA('BOLD')};
 								color: ${COLOR.BRAND('main')};
 								font-size: 64px;
 								line-height: 72px;
@@ -215,7 +214,7 @@ const FitnessTestDataTab: React.FC = () => {
 					scrollEnabled
 					activeColor={COLOR.BRAND('main')}
 					labelStyle={css`
-						font-family: SpoqaHanSansNeoBold;
+						font-family: ${FONT.SPOQA('BOLD')};
 						font-weight: 700;
 						font-size: 16px;
 					`}

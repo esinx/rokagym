@@ -10,7 +10,6 @@ import {
 import tinycolor from 'tinycolor2'
 
 import Spinner from '@/components/Spinner'
-import COLOR from '@/utils/colors'
 
 type Props = TouchableWithoutFeedbackProps & {
 	backgroundColor?: string
@@ -65,7 +64,7 @@ const Button: React.FC<Props> = (props) => {
 				style,
 				{
 					backgroundColor: disabled
-						? COLOR.GRAY(150)
+						? tinycolor(backgroundColor).setAlpha(0.7).toHex8String()
 						: active
 						? activeColor ?? tinycolor(backgroundColor).darken(4).toHexString()
 						: backgroundColor,

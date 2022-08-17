@@ -39,7 +39,19 @@ afterAll(() => {
 	prisma.$disconnect()
 })
 
-describe.only('open data APIs', () => {
+describe.only('ranking', () => {
+	test('ranking.getRanking', async () => {
+		const res = await client.query('ranking.getRanking', {
+			id: 'ALL.pushup.daily',
+		})
+		expect(res).toHaveProperty('createdAt')
+		expect(res).toHaveProperty('id')
+		expect(res).toHaveProperty('data')
+		expect(res.data.length).toBeGreaterThan(0)
+	})
+})
+
+describe('open data APIs', () => {
 	test('opendata.getFitnessTestData', async () => {
 		const res = await client.query('opendata.getFitnessTestData')
 		expect(res.length).toBeGreaterThan(1)
@@ -115,7 +127,7 @@ test('base.baseLookup', async () => {
 })
 
 describe('user creation and login', () => {
-	let baseId: string, userId: string
+	let baseId: string, userEmail: string
 	let didCreateNewBase = false
 	test('user.createUser', async () => {
 		// find base
@@ -147,7 +159,7 @@ describe('user creation and login', () => {
 			baseId,
 		})
 		expect(createUserRes).toBeTruthy()
-		userId = createUserRes.id
+		userEmail = 'kimyoonsoo@esinx.net'
 	})
 
 	test('user.login', async () => {
@@ -180,7 +192,7 @@ describe('user creation and login', () => {
 		if (!credentials.accessToken)
 			throw new Error('Failed to retrieve token from cache')
 		const profileRes = await client.query('user.profile')
-		expect(profileRes.id).toEqual(userId)
+		expect(profileRes.email).toEqual(userEmail)
 	})
 	test('user.invalidateRefreshToken', async () => {
 		const invalidateRes = await client.mutation('user.invalidateRefreshToken')
@@ -191,7 +203,7 @@ describe('user creation and login', () => {
 	afterAll(async () => {
 		await prisma.user.delete({
 			where: {
-				id: userId,
+				email: userEmail,
 			},
 		})
 		if (didCreateNewBase) {

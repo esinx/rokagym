@@ -5,8 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { Provider as JotaiProvider } from 'jotai'
-import { Suspense, useEffect, useState } from 'react'
-import { Platform, Text, View } from 'react-native'
+import { Suspense, useEffect } from 'react'
+import { Text, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { setCustomText, setCustomTextInput } from 'react-native-global-props'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -28,11 +28,14 @@ import RankingScreen from '@/screens/RankingScreen'
 import SelectBaseScreen from '@/screens/SelectBaseScreen'
 import SettingsScreen from '@/screens/SettingsScreen'
 import SignupScreen from '@/screens/SignupScreen'
+import TrainingGoalCreationScreen from '@/screens/TrainingGoalCreationScreen'
 import TrainingScreen from '@/screens/TrainingScreen'
+import TrainingSessionScreen from '@/screens/TrainingSessionScreen'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
 import { navigationRef } from '@/utils/root-navigation'
 import { InferQueryOutput } from '@/utils/trpc'
+import { WorkoutType } from '@/utils/types'
 
 type Base = InferQueryOutput<'base.baseLookup'> extends (infer E)[] ? E : never
 
@@ -45,6 +48,11 @@ export type RootStackParamList = {
 	FitnessTestCriteria: undefined
 	Hospital: undefined
 	SelectBase: { callback?: (base: Base) => void }
+	TrainingSession: {
+		workoutTypeId: string
+		workoutType: WorkoutType
+	}
+	TrainingGoalCreation: undefined
 }
 
 export type TabParamList = {
@@ -52,8 +60,6 @@ export type TabParamList = {
 	Ranking: undefined
 	Training: undefined
 }
-
-SplashScreen.preventAutoHideAsync()
 
 const RootStack = createStackNavigator<RootStackParamList>()
 const Tab = createBottomTabNavigator<TabParamList>()
@@ -105,46 +111,66 @@ const TabScreen = () => {
 	)
 }
 
+SplashScreen.preventAutoHideAsync()
+// SplashScreen.hideAsync()
 const App = () => {
-	const [showEnv, setShowEnv] = useState(true)
+	console.log('render App')
 
-	const [fontsLoaded] = useFonts({
-		ROKA:
-			Platform.OS === 'web'
-				? require('./assets/fonts/roka-web.woff')
-				: require('./assets/fonts/roka.otf'),
+	const [fontsLoaded, fontsError] = useFonts({
+		ROKA: require('./assets/fonts/roka.otf'),
 		SpoqaHanSansNeo: require('./assets/fonts/SpoqaHanSansNeo-Regular.otf'),
 		SpoqaHanSansNeoBold: require('./assets/fonts/SpoqaHanSansNeo-Bold.otf'),
 	})
 
 	useEffect(() => {
+		console.log({ fontsLoaded, fontsError })
 		if (!fontsLoaded) {
 			SplashScreen.preventAutoHideAsync()
 		} else {
 			SplashScreen.hideAsync()
-			if (Platform.OS === 'ios' || Platform.OS === 'android') {
-				setCustomText({
-					style: {
-						fontFamily: 'SpoqaHanSansNeo',
-					},
-				})
-				setCustomTextInput({
-					style: {
-						fontFamily: 'SpoqaHanSansNeo',
-					},
-				})
-			}
+			setCustomText({
+				style: {
+					fontFamily: 'SpoqaHanSansNeo',
+				},
+			})
+			setCustomTextInput({
+				style: {
+					fontFamily: 'SpoqaHanSansNeo',
+				},
+			})
 		}
-	}, [fontsLoaded])
-
-	useEffect(() => {
-		setTimeout(() => {
-			setShowEnv(false)
-		}, 10000)
-	}, [])
+	}, [fontsLoaded, fontsError])
 
 	if (!fontsLoaded) {
-		return null
+		return (
+			<View
+				style={css`
+					flex: 1;
+					align-items: center;
+					justify-content: center;
+				`}
+			>
+				<Spinner />
+				<Text
+					style={css`
+						margin-top: 12px;
+						font-size: 20px;
+						font-weight: 700;
+					`}
+				>
+					앱 초기화중...
+				</Text>
+				<Text
+					style={css`
+						margin-top: 4px;
+						font-size: 12px;
+						color: #888;
+					`}
+				>
+					앱을 최적화하는 중입니다. 잠시만 기다려주세요...
+				</Text>
+			</View>
+		)
 	}
 
 	return (
@@ -204,6 +230,34 @@ const App = () => {
 					</RootStack.Group>
 					<RootStack.Group screenOptions={{ presentation: 'modal' }}>
 						<RootStack.Screen
+							name="TrainingSession"
+							component={TrainingSessionScreen}
+							options={{
+								title: '트레이닝',
+								headerShown: false,
+								gestureEnabled: false,
+								cardStyle: {
+									backgroundColor: COLOR.BRAND(300),
+								},
+							}}
+						/>
+						<RootStack.Screen
+							name="TrainingGoalCreation"
+							component={TrainingGoalCreationScreen}
+							options={{
+								title: '목표설정',
+								headerBackTitle: '취소',
+								headerStyle: {
+									shadowOpacity: 0,
+								},
+								headerTitleStyle: {
+									display: 'none',
+								},
+							}}
+						/>
+					</RootStack.Group>
+					<RootStack.Group screenOptions={{ presentation: 'modal' }}>
+						<RootStack.Screen
 							name="Settings"
 							component={SettingsScreen}
 							options={{
@@ -243,7 +297,6 @@ const App = () => {
 					</RootStack.Group>
 				</RootStack.Navigator>
 			</NavigationContainer>
-			{showEnv && <Text>Backend:{process.env.BACKEND_BASE_URL}</Text>}
 		</MultiProvider>
 	)
 }

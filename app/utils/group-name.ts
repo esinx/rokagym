@@ -4,6 +4,7 @@ const MAP = {
 	AIR_FORCE: ['대한민국 공군 ROKAF', '공군'],
 	MARINE_CORPS: ['대한민국 해병대 ROKMC', '해병대'],
 	MINISTRY_OF_DEFENSE: ['대한민국 국방부', '국방부'],
+	UNKNOWN: ['대한민국 국방부', '국방부'],
 } as const
 const getGroupNameFromCode = (
 	code: keyof typeof MAP,

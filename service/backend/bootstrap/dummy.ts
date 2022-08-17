@@ -280,32 +280,32 @@ const main = async () => {
 	const possibleValues = [
 		{
 			pushup: 80,
-			curlup: 50,
+			situp: 50,
 			run: 2,
 		},
 		{
 			pushup: 100,
-			curlup: 100,
+			situp: 100,
 			run: 2.5,
 		},
 		{
 			pushup: 170,
-			curlup: 120,
+			situp: 120,
 			run: 3,
 		},
 		{
 			pushup: 200,
-			curlup: 150,
+			situp: 150,
 			run: 5,
 		},
 		{
 			pushup: 200,
-			curlup: 100,
+			situp: 100,
 			run: 7,
 		},
 		{
 			pushup: 120,
-			curlup: 120,
+			situp: 120,
 			run: 8,
 		},
 	]
@@ -317,7 +317,7 @@ const main = async () => {
 		Object.entries(credentials).map(async ([email, { accessToken }]) => {
 			const fetchGoals = async () =>
 				authorizedClient(accessToken).query('workout.getDailyGoals', {
-					workoutTypeIds: ['run', 'pushup', 'curlup'],
+					workoutTypeIds: ['run', 'pushup', 'situp'],
 				})
 			let dailyGoals = await fetchGoals()
 			if (dailyGoals.length === 0) {
@@ -386,28 +386,29 @@ const main = async () => {
 
 	// uncomment to make new workout data for today
 
-	// const workoutLogRes = await Promise.all(
-	// 	dailyWorkoutResult.map(async ([email, results]) => {
-	// 		const _client = authorizedClient(credentials[email].accessToken)
-	// 		return await Promise.all(
-	// 			results.map(
-	// 				async (result) =>
-	// 					await _client.mutation('workout.logWorkout', {
-	// 						isVerified: true,
-	// 						comment:
-	// 							'auto-generated random dummy data for fulfilling daily goal',
-	// 						value: result.value,
-	// 						workoutTypeId: result.workoutTypeId,
-	// 					}),
-	// 			),
-	// 		)
-	// 	}),
-	// )
+	const workoutLogRes = await Promise.all(
+		dailyWorkoutResult.map(async ([email, results]) => {
+			const _client = authorizedClient(credentials[email].accessToken)
+			return await Promise.all(
+				results.map(
+					async (result) =>
+						await _client.mutation('workout.logWorkout', {
+							isVerified: true,
+							comment:
+								'auto-generated random dummy data for fulfilling daily goal',
+							value: result.value,
+							workoutTypeId: result.workoutTypeId,
+							duration: 600,
+						}),
+				),
+			)
+		}),
+	)
 
 	const result = await authorizedClient(
 		credentials['shines@gmail.com'].accessToken,
 	).query('workout.getDailyGoalPercent', {
-		workoutTypeIds: ['run', 'pushup', 'curlup'],
+		workoutTypeIds: ['run', 'pushup', 'situp'],
 	})
 
 	console.log(result)

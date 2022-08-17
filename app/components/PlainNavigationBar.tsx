@@ -4,6 +4,7 @@ import { Image, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import COLOR from '@/utils/colors'
+import FONT from '@/utils/fonts'
 
 const PlainNavigationBar: React.FC<{
 	title?: string
@@ -35,7 +36,7 @@ const PlainNavigationBar: React.FC<{
 				<Text
 					style={css`
 						margin-left: 8px;
-						font-family: 'ROKA';
+						font-family: ${FONT.ROKA};
 						font-size: 36px;
 						font-weight: 700;
 						color: ${COLOR.BRAND('main')};

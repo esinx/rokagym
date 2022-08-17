@@ -1,10 +1,11 @@
 import { useSetAtom } from 'jotai'
 
+import { BACKEND_BASE_URL } from '@/components/TRPCProvider'
 import useCurrentAtomValue from '@/hooks/use-current-atom-value'
 import { accessTokenAtom, refreshTokenAtom } from '@/store/atoms/token'
 import { trpc } from '@/utils/trpc'
 
-const trpcClient = trpc.createClient({ url: process.env.BACKEND_BASE_URL })
+const trpcClient = trpc.createClient({ url: BACKEND_BASE_URL })
 
 export const getAccessToken = async (refreshToken: string) => {
 	const newToken = await trpcClient.mutation('user.getAccessToken', {

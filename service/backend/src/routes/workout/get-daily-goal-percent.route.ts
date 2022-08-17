@@ -6,14 +6,21 @@ import createAuthorizedRouter from '@/utils/routers/createAuthorizedRouter'
 const getDailyGoalPercentRoute = createAuthorizedRouter().query(
 	'getDailyGoalPercent',
 	{
-		input: z.object({
-			workoutTypeIds: z.array(z.string()),
-		}),
-		resolve: async ({ ctx: { prisma, user }, input: { workoutTypeIds } }) => {
+		input: z
+			.object({
+				workoutTypeIds: z.array(z.string()),
+			})
+			.or(z.undefined()),
+		resolve: async ({ ctx: { prisma, user }, input }) => {
 			const goals = await prisma.dailyWorkoutGoal.findMany({
 				where: {
 					userId: user.id,
-					workoutTypeId: { in: workoutTypeIds },
+					...(input?.workoutTypeIds
+						? { workoutTypeId: { in: input.workoutTypeIds } }
+						: {}),
+				},
+				include: {
+					type: true,
 				},
 				orderBy: {
 					createdAt: 'desc',
@@ -27,7 +34,9 @@ const getDailyGoalPercentRoute = createAuthorizedRouter().query(
 				by: ['workoutTypeId'],
 				where: {
 					userId: user.id,
-					workoutTypeId: { in: workoutTypeIds },
+					...(input?.workoutTypeIds
+						? { workoutTypeId: { in: input.workoutTypeIds } }
+						: {}),
 					timestamp: {
 						gte: todayKST.startOf('day').toJSDate(),
 						lte: todayKST.endOf('day').toJSDate(),
@@ -37,15 +46,12 @@ const getDailyGoalPercentRoute = createAuthorizedRouter().query(
 					value: true,
 				},
 			})
-
-			console.log(goals)
-			console.log(workouts)
-
-			return goals.map(({ workoutTypeId, value }) => {
+			return goals.map(({ type, workoutTypeId, value }) => {
 				const sum = workouts.find((w) => w.workoutTypeId === workoutTypeId)
 					?._sum.value
 				const currentValue = typeof sum === 'number' ? sum : 0
 				return {
+					workoutType: type,
 					workoutTypeId,
 					goal: value,
 					currentValue,

@@ -7,7 +7,7 @@ const main = async () => {
 		const res = await prisma.workoutType.findMany({
 			where: {
 				id: {
-					in: ['2m-pushup', '2m-curlup', '3km-run'],
+					in: ['2m-pushup', '2m-situp', '3km-run'],
 				},
 			},
 		})
@@ -22,9 +22,9 @@ const main = async () => {
 				unit: 'COUNT',
 			})
 		}
-		if (!res.some((o) => o.id === '2m-curlup')) {
+		if (!res.some((o) => o.id === '2m-situp')) {
 			items.push({
-				id: '2m-curlup',
+				id: '2m-situp',
 				name: '윗몸일으키기',
 				detailedName: '윗몸일으키기(2분)',
 				goalDirection: 'MORE',
@@ -54,7 +54,7 @@ const main = async () => {
 		const res = await prisma.workoutType.findMany({
 			where: {
 				id: {
-					in: ['pushup', 'curlup', 'run'],
+					in: ['pushup', 'situp', 'run'],
 				},
 			},
 		})
@@ -69,9 +69,9 @@ const main = async () => {
 				unit: 'COUNT',
 			})
 		}
-		if (!res.some((o) => o.id === 'curlup')) {
+		if (!res.some((o) => o.id === 'situp')) {
 			items.push({
-				id: 'curlup',
+				id: 'situp',
 				name: '윗몸일으키기',
 				detailedName: '윗몸일으키기',
 				goalDirection: 'MORE',

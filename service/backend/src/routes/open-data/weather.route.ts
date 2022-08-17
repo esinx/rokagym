@@ -1,6 +1,6 @@
 import { URLSearchParams } from 'url'
 
-import { DateTime } from 'luxon'
+import { DateTime, Duration } from 'luxon'
 import { z } from 'zod'
 
 import fetchOpenData, { OpenDataAPI } from '@/utils/fetchOpenData'
@@ -69,6 +69,56 @@ type RawWeatherResponse = {
 		}
 	}
 }
+
+const BASE_TIMES = [
+	'0200',
+	'0500',
+	'0800',
+	'1100',
+	'1400',
+	'1700',
+	'2000',
+	'2300',
+]
+
+const getBaseDateTime = (date: Date) => {
+	const timeString = DateTime.fromJSDate(date)
+		.setZone('Asia/Seoul')
+		.toFormat('HHmm')
+	let baseDate: string | undefined = undefined
+	let baseTime: string | undefined = undefined
+	let i = 0
+	while (!baseDate || !baseTime) {
+		if (i == 0) {
+			if (Number(timeString) < Number(BASE_TIMES[0])) {
+				// yesterday
+				baseDate = DateTime.fromJSDate(date)
+					.setZone('Asia/Seoul')
+					.startOf('day')
+					.minus(Duration.fromObject({ day: 1 }))
+					.startOf('day')
+					.toFormat('yyyyMMdd')
+				baseTime = '2300'
+			}
+		} else {
+			if (
+				i == BASE_TIMES.length ||
+				(Number(timeString) < Number(BASE_TIMES[i]) &&
+					Number(timeString) >= Number(BASE_TIMES[i - 1]))
+			) {
+				// today
+				baseDate = DateTime.fromJSDate(date)
+					.setZone('Asia/Seoul')
+					.startOf('day')
+					.toFormat('yyyyMMdd')
+				baseTime = BASE_TIMES[i - 1]
+			}
+		}
+		i++
+	}
+	return { baseDate, baseTime }
+}
+
 const weatherForecastAPI: OpenDataAPI<
 	{
 		baseDate: Date
@@ -79,13 +129,20 @@ const weatherForecastAPI: OpenDataAPI<
 	RawWeatherResponse
 > = {
 	buildRequest: ({ baseDate, nx, ny }) => {
+		const {
+			baseDate: formattedDate = DateTime.fromJSDate(baseDate)
+				.setZone('Asia/Seoul')
+				.startOf('day')
+				.toFormat('yyyyMMdd'),
+			baseTime: formattedTime = '0200',
+		} = getBaseDateTime(baseDate)
 		const params = {
 			serviceKey: process.env.GOV_OPEN_DATA_API_KEY!,
 			pageNo: String(0),
 			numOfRows: String(1000),
 			dataType: 'JSON',
-			['base_date']: DateTime.fromJSDate(baseDate).toFormat('yyyyMMdd'),
-			['base_time']: DateTime.fromJSDate(baseDate).toFormat('HHmm'),
+			['base_date']: formattedDate,
+			['base_time']: formattedTime,
 			nx: String(nx),
 			ny: String(ny),
 		}
@@ -94,7 +151,7 @@ const weatherForecastAPI: OpenDataAPI<
 			url: `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?${query.toString()}`,
 		}
 	},
-	parseResult: (res) => res.response.body.items.item,
+	parseResult: (res) => res.response.body?.items?.item ?? [],
 }
 
 const weatherUVIndexAPI: OpenDataAPI<void, unknown> = {
@@ -145,7 +202,10 @@ const weatherForecastRoute = createRouter().query('getWeatherForecast', {
 			baseDate,
 			...coordinates,
 		})
-		return items.reduce(
+		const todayKST = DateTime.now().setZone('Asia/Seoul').toFormat('yyyyMMdd')
+		const todayOnly = items.filter((item) => item.fcstDate === todayKST)
+		console.log(items.length, todayOnly.length)
+		return todayOnly.reduce(
 			(acc, cur) => {
 				const key = cur.category
 				if (!categories.some((k) => k === key)) return acc

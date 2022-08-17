@@ -16,6 +16,9 @@ const getDailyGoalRoute = createAuthorizedRouter()
 				orderBy: {
 					createdAt: 'desc',
 				},
+				include: {
+					type: true,
+				},
 			})
 		},
 	})
@@ -31,6 +34,27 @@ const getDailyGoalRoute = createAuthorizedRouter()
 				},
 				orderBy: {
 					createdAt: 'desc',
+				},
+				include: {
+					type: true,
+				},
+				distinct: ['workoutTypeId'],
+			})
+		},
+	})
+	.query('getAllDailyGoals', {
+		input: z.undefined(),
+		resolve: async ({ ctx: { prisma, user } }) => {
+			console.log(user.id)
+			return prisma.dailyWorkoutGoal.findMany({
+				where: {
+					userId: user.id,
+				},
+				orderBy: {
+					createdAt: 'desc',
+				},
+				include: {
+					type: true,
 				},
 				distinct: ['workoutTypeId'],
 			})

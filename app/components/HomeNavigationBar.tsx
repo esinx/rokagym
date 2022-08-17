@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { RootStackParamList, TabParamList } from '@/App'
 import COLOR from '@/utils/colors'
+import FONT from '@/utils/fonts'
 
 const HomeNavigationBar: React.FC<ViewProps> = (props) => {
 	const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>()
@@ -41,7 +42,7 @@ const HomeNavigationBar: React.FC<ViewProps> = (props) => {
 					<Text
 						style={css`
 							margin-left: 8px;
-							font-family: 'ROKA';
+							font-family: ${FONT.ROKA};
 							font-size: 36px;
 							font-weight: 700;
 							color: #fff;

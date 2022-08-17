@@ -8,9 +8,10 @@ const logWorkoutRoute = createAuthorizedRouter().mutation('logWorkout', {
 		value: z.number(),
 		isVerified: z.boolean(),
 		comment: z.string().optional(),
+		duration: z.number(),
 	}),
 	resolve: async ({ ctx: { prisma, user }, input }) => {
-		const { workoutTypeId, value, isVerified, comment } = input
+		const { workoutTypeId, value, isVerified, comment, duration } = input
 		const res = await prisma.workoutLog.create({
 			data: {
 				userId: user.id,
@@ -18,6 +19,7 @@ const logWorkoutRoute = createAuthorizedRouter().mutation('logWorkout', {
 				value,
 				isVerified,
 				comment,
+				duration,
 			},
 		})
 		return res
