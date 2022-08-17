@@ -39,7 +39,7 @@ afterAll(() => {
 	prisma.$disconnect()
 })
 
-describe.only('ranking', () => {
+describe('ranking', () => {
 	test('ranking.getRanking', async () => {
 		const res = await client.query('ranking.getRanking', {
 			id: 'ALL.pushup.daily',

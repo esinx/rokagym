@@ -15,7 +15,7 @@
 	"dependencies": {
 		"@aws-sdk/client-dynamodb": "^3.137.0",
 		"@aws-sdk/lib-dynamodb": "^3.137.0",
-		"@prisma/client": "4.1.1",
+		"@prisma/client": "4.2.1",
 		"dotenv": "^16.0.1",
 		"luxon": "^3.0.1"
 	},

@@ -82,12 +82,7 @@ export const cacheRankingData: EventBridgeHandler<
   );
 
   const prisma = new PrismaClient({
-    // log: [
-    //   {
-    //     emit: "stdout",
-    //     level: "query",
-    //   },
-    // ],
+    log: [],
   });
   // just watch and amaze at my gorgeous sql skills
   const fetchTopOf = async ({
@@ -101,16 +96,22 @@ export const cacheRankingData: EventBridgeHandler<
     limit?: number;
     group?: Base["group"];
   }): Promise<RankingEntry[]> =>
-    (await prisma.$queryRaw`SELECT WorkoutLog.userId, User.name AS username, User.rank, User.baseId, Base.name AS basename, Base.group,
-    SUM(WorkoutLog.value) AS value
-FROM WorkoutLog
-RIGHT JOIN User ON WorkoutLog.userId = User.id
-RIGHT JOIN Base ON User.baseId = Base.id
-WHERE WorkoutLog.timestamp > ${DateTime.fromJSDate(timeRange[0]).toISO()}
-        AND WorkoutLog.timestamp < ${DateTime.fromJSDate(timeRange[1]).toISO()}
-        AND WorkoutLog.workoutTypeId = ${workoutTypeId}
-        ${group ? Prisma.sql`AND Base.group = ${group}` : Prisma.empty}
-GROUP BY WorkoutLog.userId, WorkoutLog.workoutTypeId
+    (await prisma.$queryRaw`SELECT "WorkoutLog"."userId", "User"."name" AS username, "User"."rank", "User"."baseId", "Base"."name" AS basename, "Base"."group",
+    SUM("WorkoutLog"."value") AS value
+FROM "WorkoutLog"
+RIGHT JOIN "User" ON "WorkoutLog"."userId" = "User"."id"
+RIGHT JOIN "Base" ON "User"."baseId" = "Base"."id"
+WHERE CAST("WorkoutLog"."timestamp" AS DATE) > ${
+      timeRange[0]
+    } AND CAST("WorkoutLog"."timestamp" AS DATE) < ${
+      timeRange[1]
+    } AND "WorkoutLog"."workoutTypeId" = ${workoutTypeId}
+    ${
+      group
+        ? Prisma.sql`AND "Base"."group" = CAST(${group} AS "MilGroup")`
+        : Prisma.empty
+    }
+GROUP BY "WorkoutLog"."userId", "WorkoutLog"."workoutTypeId", "User"."id", "Base"."name", "Base"."group"
 ORDER BY SUM(value) DESC
 LIMIT ${limit}`) as RankingEntry[];
 
@@ -139,9 +140,16 @@ LIMIT ${limit}`) as RankingEntry[];
 
     const allRankings = await Promise.all(
       RANKINGS.map(async (ranking) => {
-        const fetched = await fetchRanking(ranking);
-        console.log("did fetch", ranking.id);
-        return [ranking, fetched] as [Ranking, RankingEntry[]];
+        console.log("fetching", ranking.id);
+        try {
+          const fetched = await fetchRanking(ranking);
+          console.log("did fetch", ranking.id);
+          return [ranking, fetched] as [Ranking, RankingEntry[]];
+        } catch (error) {
+          console.error(error);
+          console.log("^ happened while fetching", ranking.id);
+          return [];
+        }
       })
     );
     console.log(`Need to store: ${allRankings.length} documents`);

@@ -18,7 +18,7 @@ const main = async () => {
 				name: '팔굽혀펴기',
 				detailedName: '팔굽혀펴기(2분)',
 				goalDirection: 'MORE',
-				isTested: true,
+				tags: ['ASSESSED', 'CORE'],
 				unit: 'COUNT',
 			})
 		}
@@ -28,7 +28,7 @@ const main = async () => {
 				name: '윗몸일으키기',
 				detailedName: '윗몸일으키기(2분)',
 				goalDirection: 'MORE',
-				isTested: true,
+				tags: ['ASSESSED', 'CORE'],
 				unit: 'COUNT',
 			})
 		}
@@ -38,7 +38,7 @@ const main = async () => {
 				name: '뜀걸음',
 				detailedName: '뜀걸음(3km)',
 				goalDirection: 'LESS',
-				isTested: true,
+				tags: ['ASSESSED', 'CORE'],
 				unit: 'TIME',
 			})
 		}
@@ -65,7 +65,7 @@ const main = async () => {
 				name: '팔굽혀펴기',
 				detailedName: '팔굽혀펴기',
 				goalDirection: 'MORE',
-				isTested: false,
+				tags: ['CORE'],
 				unit: 'COUNT',
 			})
 		}
@@ -75,7 +75,7 @@ const main = async () => {
 				name: '윗몸일으키기',
 				detailedName: '윗몸일으키기',
 				goalDirection: 'MORE',
-				isTested: false,
+				tags: ['CORE'],
 				unit: 'COUNT',
 			})
 		}
@@ -85,7 +85,7 @@ const main = async () => {
 				name: '뜀걸음',
 				detailedName: '뜀걸음',
 				goalDirection: 'MORE',
-				isTested: false,
+				tags: ['CORE'],
 				unit: 'DISTANCE',
 			})
 		}

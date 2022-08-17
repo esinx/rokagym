@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -61,11 +61,17 @@ model RefreshToken {
 }
 
 enum WorkoutUnit {
-  WEIGHT
   TIME
   COUNT
   RM
   DISTANCE
+}
+
+enum WorkoutTag {
+  ASSESSED
+  CORE
+  CUSTOM
+  WEIGHT
 }
 
 enum GoalDirection {
@@ -77,10 +83,10 @@ model WorkoutType {
   id            String        @id
   name          String
   detailedName  String
-  isTested      Boolean // is this type of workout a part of the fitness test?
+  tags          WorkoutTag[]
   goalDirection GoalDirection // more: higher value the better, less: lower value the better
-  unit          WorkoutUnit
 
+  unit             WorkoutUnit
   goals            WorkoutGoal[]
   workoutLog       WorkoutLog[]
   dailyWorkoutGoal DailyWorkoutGoal[]

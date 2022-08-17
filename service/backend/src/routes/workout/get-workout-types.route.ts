@@ -8,7 +8,9 @@ const getWorkoutTypesRoute = createRouter()
 		resolve: async ({ ctx: { prisma } }) =>
 			prisma.workoutType.findMany({
 				where: {
-					isTested: true,
+					tags: {
+						has: 'CORE',
+					},
 				},
 			}),
 	})
