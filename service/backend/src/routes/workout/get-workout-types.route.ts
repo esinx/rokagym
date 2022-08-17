@@ -14,6 +14,17 @@ const getWorkoutTypesRoute = createRouter()
 				},
 			}),
 	})
+	.query('getAssessedWorkouts', {
+		input: z.undefined(),
+		resolve: async ({ ctx: { prisma } }) =>
+			prisma.workoutType.findMany({
+				where: {
+					tags: {
+						has: 'ASSESSED',
+					},
+				},
+			}),
+	})
 	.query('getWorkouts', {
 		input: z.undefined(),
 		resolve: async ({ ctx: { prisma } }) => prisma.workoutType.findMany(),
