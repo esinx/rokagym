@@ -39,6 +39,35 @@ afterAll(() => {
 	prisma.$disconnect()
 })
 
+describe.only('region', () => {
+	test('region level 0', async () => {
+		const res = await client.query('opendata.getRegionCodesLevel0')
+		expect(res).toContain('서울특별시')
+	})
+	test('region level 1', async () => {
+		const res = await client.query('opendata.getRegionCodesLevel1', [
+			'서울특별시',
+		])
+		expect(res).toContain('종로구')
+	})
+	test('region level 2', async () => {
+		const res = await client.query('opendata.getRegionCodesLevel2', [
+			'서울특별시',
+			'종로구',
+		])
+		expect(res.some((x) => x.level3 === '평창동')).toBeTruthy()
+	})
+
+	test('region level 3', async () => {
+		const res = await client.query('opendata.getRegionCodesLevel3', [
+			'서울특별시',
+			'종로구',
+			'평창동',
+		])
+		expect(res).toHaveProperty('nx')
+	})
+})
+
 describe('ranking', () => {
 	test('ranking.getRanking', async () => {
 		const res = await client.query('ranking.getRanking', {

@@ -72,7 +72,6 @@ parseFile<Row, Row>('./region_code_coordinates.csv', {
 			`./${prefix}/index.csv`,
 			Object.keys(master).map((r) => [r || '_']),
 			{
-				headers: ['regions'],
 				delimiter: ',',
 				rowDelimiter: '\r\n',
 			},
@@ -82,7 +81,6 @@ parseFile<Row, Row>('./region_code_coordinates.csv', {
 				`./${prefix}/${k1}/index.csv`,
 				Object.keys(v1).map((r) => [r || '_']),
 				{
-					headers: ['regions'],
 					delimiter: ',',
 					rowDelimiter: '\r\n',
 				},
