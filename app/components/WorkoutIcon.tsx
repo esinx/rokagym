@@ -14,6 +14,9 @@ const WorkoutIcon: React.FC<{ workoutTypeId: string } & SvgProps> = ({
 			run: RunIcon,
 			situp: SitupIcon,
 			pushup: PushupIcon,
+			'3km-run': RunIcon,
+			'2m-situp': SitupIcon,
+			'2m-pushup': PushupIcon,
 		}[workoutTypeId] ?? BarbellIcon
 	return <Icon {...passProps} />
 }

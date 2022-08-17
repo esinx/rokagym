@@ -52,7 +52,9 @@ export type RootStackParamList = {
 		workoutTypeId: string
 		workoutType: WorkoutType
 	}
-	TrainingGoalCreation: undefined
+	TrainingGoalCreation: {
+		daily?: boolean
+	}
 }
 
 export type TabParamList = {

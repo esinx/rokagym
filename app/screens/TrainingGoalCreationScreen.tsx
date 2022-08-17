@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 type FieldValues = z.infer<typeof formSchema>
 
-const Content: React.FC = () => {
+const FormContent: React.FC = () => {
 	const workoutTypesQuery = trpc.useQuery(['workout.getWorkouts'])
 
 	const {
@@ -49,77 +49,64 @@ const Content: React.FC = () => {
 	if (!workoutTypesQuery.data) return null
 
 	return (
-		<View
-			style={css`
-				padding: 20px;
-				padding-top: 0px;
-			`}
-		>
-			<Text
-				style={css`
-					font-family: ${FONT.ROKA};
-					font-size: 48px;
-					color: ${COLOR.BRAND(300)};
-				`}
-			>
-				목표 설정하기
-			</Text>
-			<Spacer y={24} />
-			<View style={css``}>
-				<View>
-					<Label>운동 종류</Label>
-					<RGModalSelection
-						options={workoutTypesQuery.data}
-						pressableProps={{
-							style: css`
-								border-radius: 4px;
-							`,
-						}}
-						renderItem={({ item, selected }) => (
+		<View style={css``}>
+			<View>
+				<Label>운동 종류</Label>
+				<RGModalSelection
+					options={workoutTypesQuery.data}
+					pressableProps={{
+						style: css`
+							border-radius: 4px;
+						`,
+					}}
+					renderItem={({ item, selected }) => (
+						<View
+							style={css`
+								padding: 12px;
+								flex-direction: row;
+								align-items: center;
+							`}
+						>
 							<View
 								style={css`
-									padding: 12px;
-									flex-direction: row;
+									width: 20px;
+									height: 20px;
+									border-radius: 10px;
+									background: ${selected ? COLOR.BRAND(200) : '#FFF'};
+									border: solid ${COLOR.GRAY(100)} 5px;
 								`}
-							>
-								<View
-									style={css`
-										width: 20px;
-										height: 20px;
-										border-radius: 10px;
-										background: ${selected ? COLOR.BRAND(200) : '#FFF'};
-										border: solid ${COLOR.GRAY(100)} 5px;
-									`}
-								/>
-								<WorkoutIcon workoutTypeId={item.id} />
-								<Text
-									style={css`
-										margin-left: 8px;
-									`}
-								>
-									{item.detailedName}
-								</Text>
-							</View>
-						)}
-						renderValue={(value) => (
+							/>
+							<Spacer x={16} />
+							<WorkoutIcon width={24} height={24} workoutTypeId={item.id} />
+							<Spacer x={8} />
 							<Text
 								style={css`
-									color: ${value ? COLOR.GRAY(900) : COLOR.GRAY(400)};
+									margin-left: 8px;
 								`}
 							>
-								{value ?? '운동 종류를 선택해주세요.'}
+								{item.detailedName}
 							</Text>
-						)}
-					/>
-				</View>
-				<View></View>
-				<View></View>
+						</View>
+					)}
+					renderValue={(value) => (
+						<Text
+							style={css`
+								color: ${value ? COLOR.GRAY(900) : COLOR.GRAY(400)};
+							`}
+						>
+							{value ?? '운동 종류를 선택해주세요.'}
+						</Text>
+					)}
+				/>
 			</View>
+			<View></View>
+			<View></View>
 		</View>
 	)
 }
 
 const TrainingGoalCreationScreen: React.FC<Props> = ({ navigation, route }) => {
+	const daily = route.params?.daily ?? false
 	return (
 		<>
 			<SafeAreaView
@@ -127,9 +114,26 @@ const TrainingGoalCreationScreen: React.FC<Props> = ({ navigation, route }) => {
 					flex: 1;
 				`}
 			>
-				<AsyncBoundary>
-					<Content />
-				</AsyncBoundary>
+				<View
+					style={css`
+						padding: 20px;
+						padding-top: 0px;
+					`}
+				>
+					<Text
+						style={css`
+							font-family: ${FONT.ROKA};
+							font-size: 32px;
+							color: ${COLOR.BRAND(300)};
+						`}
+					>
+						{daily ? '일일' : '새'} 목표 설정하기
+					</Text>
+					<Spacer y={24} />
+					<AsyncBoundary>
+						<FormContent />
+					</AsyncBoundary>
+				</View>
 			</SafeAreaView>
 		</>
 	)

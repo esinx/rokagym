@@ -127,7 +127,7 @@ const Rings: React.FC<{
 							RADIUS,
 							radiusAtIndex(idx),
 							0,
-							360 * ringValue * value,
+							Math.min(360 * ringValue * value, 359),
 						),
 					})
 					pathRefs.current[`chevron-${idx}`]?.setNativeProps({

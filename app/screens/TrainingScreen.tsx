@@ -328,7 +328,9 @@ const Content: React.FC = () => {
 										align-items: center;
 									`}
 									onPress={() => {
-										navigation.push('TrainingGoalCreation')
+										navigation.push('TrainingGoalCreation', {
+											daily: true,
+										})
 									}}
 								>
 									<FontAwesome name="plus" size={12} color="#fff" />
