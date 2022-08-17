@@ -248,7 +248,7 @@ const App = () => {
 							component={TrainingGoalCreationScreen}
 							options={{
 								title: '목표설정',
-								headerBackTitle: '취소',
+								headerBackTitle: '돌아가기',
 								headerStyle: {
 									shadowOpacity: 0,
 								},

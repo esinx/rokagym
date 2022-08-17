@@ -106,17 +106,6 @@ const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 				</View>
 			</View>
 			<View>
-				<Text
-					style={css`
-						text-align: center;
-						font-family: ${FONT.SPOQA('BOLD')};
-						font-size: 128px;
-						color: #fff;
-						font-variant: tabular-nums;
-					`}
-				>
-					--:--
-				</Text>
 				<AsyncBoundary
 					ErrorFallback={() => null}
 					SuspenseFallback={
@@ -143,6 +132,25 @@ const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 						<RecentRecord workoutTypeId={route.params.workoutTypeId} />
 					</View>
 				</AsyncBoundary>
+				<Text
+					style={css`
+						text-align: center;
+						font-family: ${FONT.SPOQA('BOLD')};
+						font-size: 128px;
+						color: #fff;
+						font-variant: tabular-nums;
+					`}
+				>
+					--:--
+				</Text>
+				<Text
+					style={css`
+						text-align: center;
+						color: #fff;
+					`}
+				>
+					* 정당성을 위해 2분 이상 실시한 트레이닝만 기록됩니다.
+				</Text>
 			</View>
 			<View>
 				<Button

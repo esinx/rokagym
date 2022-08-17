@@ -172,6 +172,10 @@ const Content: React.FC = () => {
 						<WorkoutEntry key={item.workoutTypeId} data={item} />
 					),
 				},
+				{
+					key: 'test-records',
+					data: [],
+				},
 			]}
 			renderSectionHeader={({ section: { key } }) => {
 				switch (key) {
@@ -346,6 +350,92 @@ const Content: React.FC = () => {
 									</Text>
 								</PressableHighlight>
 							</View>
+						)
+
+					case 'test-records':
+						return (
+							<View
+								style={css`
+									margin-top: 20px;
+									flex-direction: row;
+									justify-content: space-between;
+									align-items: center;
+								`}
+							>
+								<Text
+									style={css`
+										font-family: ${FONT.ROKA};
+										font-size: 24px;
+									`}
+								>
+									나의 체력측정
+								</Text>
+								<PressableHighlight
+									color={COLOR.BRAND(200)}
+									highlightColor={COLOR.BRAND(300)}
+									style={css`
+										border-radius: 20px;
+										padding: 8px 12px;
+										flex-direction: row;
+										justify-content: space-between;
+										align-items: center;
+									`}
+									onPress={() => {
+										navigation.push('TrainingGoalCreation', {
+											daily: true,
+										})
+									}}
+								>
+									<FontAwesome name="plus" size={12} color="#fff" />
+									<Text
+										style={css`
+											margin-left: 4px;
+											font-family: ${FONT.SPOQA('BOLD')};
+											font-size: 14px;
+											color: #fff;
+										`}
+									>
+										추가하기
+									</Text>
+								</PressableHighlight>
+							</View>
+						)
+				}
+				return null
+			}}
+			renderSectionFooter={({ section: { key } }) => {
+				switch (key) {
+					case 'test-records':
+						return (
+							<PressableHighlight
+								color={COLOR.BRAND(200)}
+								style={css`
+									margin-top: 12px;
+									border-radius: 12px;
+									padding: 12px;
+									align-items: center;
+								`}
+							>
+								<Text
+									style={css`
+										font-family: ${FONT.SPOQA('BOLD')};
+										font-size: 18px;
+										color: #fff;
+									`}
+								>
+									3대 체력측정 시작하기
+								</Text>
+
+								<Text
+									style={css`
+										margin-top: 8px;
+										font-size: 14px;
+										color: #ffffffcc;
+									`}
+								>
+									3km 뜀걸음 - 2분 팔굽혀펴기 - 2분 윗몸일으키기
+								</Text>
+							</PressableHighlight>
 						)
 				}
 				return null
