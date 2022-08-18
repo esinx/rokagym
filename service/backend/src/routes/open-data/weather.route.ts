@@ -174,67 +174,75 @@ const weatherUVIndexAPI: OpenDataAPI<void, unknown> = {
 	},
 }
 
-const weatherForecastRoute = createRouter().query('getWeatherForecast', {
-	input: z.object({
-		baseDate: dateSchema,
-		coordinates: z.object({
-			nx: z.union([z.string(), z.number()]),
-			ny: z.union([z.string(), z.number()]),
-		}),
-		categories: z.array(
-			z.enum([
-				'POP',
-				'PTY',
-				'PCP',
-				'REH',
-				'SNO',
-				'SKY',
-				'TMP',
-				'TMN',
-				'TMX',
-				'VEC',
-				'WSD',
-			]),
-		),
+const zWeatherDataInput = z.object({
+	baseDate: dateSchema,
+	coordinates: z.object({
+		nx: z.union([z.string(), z.number()]),
+		ny: z.union([z.string(), z.number()]),
 	}),
-	resolve: async ({ input: { baseDate, coordinates, categories } }) => {
-		const items = await fetchOpenData(weatherForecastAPI, {
-			baseDate,
-			...coordinates,
-		})
-		const todayKST = DateTime.now().setZone('Asia/Seoul').toFormat('yyyyMMdd')
-		const todayOnly = items.filter((item) => item.fcstDate === todayKST)
-		console.log(items.length, todayOnly.length)
-		return todayOnly.reduce(
-			(acc, cur) => {
-				const key = cur.category
-				if (!categories.some((k) => k === key)) return acc
-				const previousValue = acc[cur.category] ?? []
-				return {
-					...acc,
-					[key]: [
-						...previousValue,
-						{
-							value: cur.fcstValue,
-							time: DateTime.fromFormat(
-								cur.fcstDate + cur.fcstTime,
-								'yyyyMMddHHmm',
-							).toJSDate(),
-							unit: CATEGORY_MAP[key][1],
-						},
-					],
-				}
-			},
-			{} as Record<
-				typeof categories[number],
-				{
-					value: string
-					time: Date
-					unit: string
-				}[]
-			>,
-		)
-	},
+	categories: z.array(
+		z.enum([
+			'POP',
+			'PTY',
+			'PCP',
+			'REH',
+			'SNO',
+			'SKY',
+			'TMP',
+			'TMN',
+			'TMX',
+			'VEC',
+			'WSD',
+		]),
+	),
+})
+
+export const getWeatherData = async ({
+	baseDate,
+	categories,
+	coordinates,
+}: z.infer<typeof zWeatherDataInput>) => {
+	const items = await fetchOpenData(weatherForecastAPI, {
+		baseDate,
+		...coordinates,
+	})
+	const todayKST = DateTime.now().setZone('Asia/Seoul').toFormat('yyyyMMdd')
+	const todayOnly = items.filter((item) => item.fcstDate === todayKST)
+	console.log(items.length, todayOnly.length)
+	return todayOnly.reduce(
+		(acc, cur) => {
+			const key = cur.category
+			if (!categories.some((k) => k === key)) return acc
+			const previousValue = acc[cur.category] ?? []
+			return {
+				...acc,
+				[key]: [
+					...previousValue,
+					{
+						value: cur.fcstValue,
+						time: DateTime.fromFormat(
+							cur.fcstDate + cur.fcstTime,
+							'yyyyMMddHHmm',
+						).toJSDate(),
+						unit: CATEGORY_MAP[key][1],
+					},
+				],
+			}
+		},
+		{} as Record<
+			typeof categories[number],
+			{
+				value: string
+				time: Date
+				unit: string
+			}[]
+		>,
+	)
+}
+
+const weatherForecastRoute = createRouter().query('getWeatherForecast', {
+	input: zWeatherDataInput,
+	resolve: async ({ input }) => await getWeatherData(input),
 })
 
 const weatherUVIndexDataRoute = createRouter().query('getUVIndexData', {

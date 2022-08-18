@@ -26,6 +26,8 @@ import HospitalScreen from '@/screens/HospitalScreen'
 import LoginScreen from '@/screens/LoginScreen'
 import RankingScreen from '@/screens/RankingScreen'
 import SelectBaseScreen from '@/screens/SelectBaseScreen'
+import SelectMealCodeScreen from '@/screens/SelectMealCodeScreen'
+import SelectRegionCodeScreen from '@/screens/SelectRegionCodeScreen'
 import SettingsScreen from '@/screens/SettingsScreen'
 import SignupScreen from '@/screens/SignupScreen'
 import TrainingGoalCreationScreen from '@/screens/TrainingGoalCreationScreen'
@@ -47,7 +49,6 @@ export type RootStackParamList = {
 	Settings: undefined
 	FitnessTestCriteria: undefined
 	Hospital: undefined
-	SelectBase: { callback?: (base: Base) => void }
 	TrainingSession: {
 		workoutTypeId: string
 		workoutType: WorkoutType
@@ -55,6 +56,9 @@ export type RootStackParamList = {
 	TrainingGoalCreation: {
 		daily?: boolean
 	}
+	SelectBase: { callback?: (base: Base) => void }
+	SelectMealCode: { callback?: (mealCode: string) => void }
+	SelectRegionCode: { callback?: (regionCode: string) => void }
 }
 
 export type TabParamList = {
@@ -281,6 +285,26 @@ const App = () => {
 							component={SelectBaseScreen}
 							options={{
 								title: '부대찾기',
+								headerStyle: {
+									shadowOpacity: 0,
+								},
+							}}
+						/>
+						<RootStack.Screen
+							name="SelectMealCode"
+							component={SelectMealCodeScreen}
+							options={{
+								title: '식단 메뉴 찾기',
+								headerStyle: {
+									shadowOpacity: 0,
+								},
+							}}
+						/>
+						<RootStack.Screen
+							name="SelectRegionCode"
+							component={SelectRegionCodeScreen}
+							options={{
+								title: '기상예보 위치 찾기',
 								headerStyle: {
 									shadowOpacity: 0,
 								},

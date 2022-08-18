@@ -1,6 +1,7 @@
 import { css } from '@emotion/native'
 import { useMemo, useState } from 'react'
 import { FlatList, Text, View } from 'react-native'
+import { useWindowDimensions } from 'react-native'
 import Modal from 'react-native-modal'
 
 import Button from '@/components/Button'
@@ -32,6 +33,7 @@ const RGModalSelection = <T,>({
 	pressableProps,
 	...props
 }: Props<T>): React.ReactElement => {
+	const dimensions = useWindowDimensions()
 	const [value, setValue] = useState(props.value)
 
 	const [open, setOpen] = useState(false)
@@ -61,18 +63,33 @@ const RGModalSelection = <T,>({
 				}}
 			>
 				<View
-					style={css`
-						background: #fff;
-						padding: 16px;
-						border-radius: 12px;
-					`}
+					style={[
+						css`
+							background: #fff;
+							padding: 16px;
+							border-radius: 12px;
+						`,
+						{
+							maxHeight: dimensions.height - 200,
+						},
+					]}
 				>
 					<FlatList
 						data={options}
+						style={css`
+							flex-shrink: 1;
+							flex-grow: 0;
+						`}
 						renderItem={({ item }) => (
 							<PressableHighlight
 								color="#FFF"
 								{...(pressableProps ?? {})}
+								style={[
+									css`
+										border-radius: 4px;
+									`,
+									pressableProps?.style,
+								]}
 								onPress={() => setSelected(item)}
 							>
 								{renderItem({ item, selected: item === selected })}

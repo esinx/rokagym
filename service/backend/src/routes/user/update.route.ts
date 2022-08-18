@@ -5,7 +5,7 @@ import { z } from 'zod'
 import createAuthorizedRouter from '@/utils/routers/createAuthorizedRouter'
 import dateSchema from '@/utils/zod-date-schema'
 
-const updateRoute = createAuthorizedRouter().query('update', {
+const updateRoute = createAuthorizedRouter().mutation('update', {
 	input: z.object({
 		name: z.string().optional(),
 		password: z.string().optional(),
@@ -14,7 +14,7 @@ const updateRoute = createAuthorizedRouter().query('update', {
 		sex: z.enum(['MALE', 'FEMALE', 'NONBINARY']).optional(),
 		baseId: z.string().optional(),
 		preferredMealBaseCode: z.string().optional(),
-		preferredLocationCode: z.string().optional(),
+		preferredRegionCode: z.string().optional(),
 	}),
 	resolve: async ({ ctx: { prisma, user }, input }) => {
 		const res = await prisma.user.update({

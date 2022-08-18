@@ -8,7 +8,19 @@ export const getApparentTemperature = (temp: number, wind: number) =>
 	0.3965 * Math.pow(wind, 0.16) * temp
 
 export const getDiscomfortIndexComment = (idx: number) => {
-	return '야외활동 시 자외선과 열사병에 유의하세요. 수분을 충분히 섭취하고 30분 활동 후에는 시원한 곳에서 휴식을 취해요.'
+	if (idx <= 68) {
+		return `활동하기에 쾌적한 환경입니다.`
+	}
+	if (idx <= 70) {
+		return `활동하기에 다소 불편한 환경입니다.`
+	}
+	if (idx <= 75) {
+		return `활동하기에 조금 불편한 환경입니다. 무리하지 않도록 주의하세요.`
+	}
+	if (idx <= 80) {
+		return `활동하기에 불편한 환경입니다. 건강상태에 주의하고 무리하지 않도록 주의하세요.`
+	}
+	return `대부분의 사람들이 불편함을 느끼는 환경입니다. 호흡 등 건강상태에 주의하고 무리하지 않도록 주의하세요.`
 }
 
 export const getApparentTemperatureComment = (temp: number) => {

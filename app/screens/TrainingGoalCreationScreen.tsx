@@ -84,11 +84,6 @@ const FormContent: React.FC = () => {
 				<Label>운동 종목</Label>
 				<RGModalSelection
 					options={workoutTypesQuery.data}
-					pressableProps={{
-						style: css`
-							border-radius: 4px;
-						`,
-					}}
 					renderItem={({ item, selected }) => (
 						<View
 							style={css`

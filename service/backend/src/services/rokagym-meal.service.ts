@@ -25,7 +25,9 @@ export const getMealData = async (
 	return res.Item as MealData
 }
 
-export const getAllMealData = async (date: Date): Promise<MealData[]> => {
+export const getAllMealData = async (
+	date: Date,
+): Promise<(MealData & { id: string })[]> => {
 	const codes = BASE_CODES.map(
 		(code) => `${code}-${DateTime.fromJSDate(date).toFormat('yyyy-MM-dd')}`,
 	)
@@ -45,5 +47,5 @@ export const getAllMealData = async (date: Date): Promise<MealData[]> => {
 	})
 
 	return (res.Responses?.[process.env.AWS_ROKAGYM_MEAL_TABLE_NAME] ??
-		[]) as MealData[]
+		[]) as (MealData & { id: string })[]
 }

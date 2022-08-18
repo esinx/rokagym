@@ -16,13 +16,16 @@ import {
 	Text,
 	View,
 } from 'react-native'
+import PagerView from 'react-native-pager-view'
 
 import { RootStackParamList, TabParamList } from '@/App'
 import AsyncBoundary from '@/components/AsyncBoundary'
+import Button from '@/components/Button'
 import ErrorBox from '@/components/ErrorBox'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
 import HomeNavigationBar from '@/components/HomeNavigationBar'
 import PressableHighlight from '@/components/PressableHighlight'
+import Spacer from '@/components/Spacer'
 import Spinner from '@/components/Spinner'
 import { hasValidTokensAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
@@ -67,63 +70,59 @@ const Badge: React.FC<{
 	)
 }
 
-const BottomSheetContent = () => {
-	const weatherQuery = trpc.useQuery([
-		'opendata.weather.getWeatherForecast',
-		{
-			baseDate: DateTime.now().startOf('day').toJSDate(),
-			categories: ['TMP', 'WSD', 'REH', 'PCP'],
-			coordinates: {
-				nx: 90,
-				ny: 90,
-			},
-		},
-	])
+const getCurrentData = (
+	values: InferQueryOutput<'opendata.weather.getWeatherForecast'>['TMP'],
+) => {
+	const now = DateTime.now()
+	return values.reduce((acc, cur) => {
+		const a = Math.abs(now.diff(DateTime.fromJSDate(acc.time)).as('seconds'))
+		const b = Math.abs(now.diff(DateTime.fromJSDate(cur.time)).as('seconds'))
+		return a > b ? cur : acc
+	}, values[0])
+}
 
+const BottomSheetContent = () => {
+	const navigation = useNavigation<HomeScreenNavigationProp>()
+
+	const homescreenDataQuery = trpc.useQuery(['user.homescreen-data'])
+	const userMutation = trpc.useMutation(['user.update'])
 	useFocusEffect(
 		useCallback(() => {
-			weatherQuery.refetch()
+			homescreenDataQuery.refetch()
 		}, []),
 	)
 
-	const getCurrentData = useCallback(
-		(
-			values: InferQueryOutput<'opendata.weather.getWeatherForecast'>['TMP'],
-		) => {
-			const now = DateTime.now()
-			return values.reduce((acc, cur) => {
-				const a = Math.abs(
-					now.diff(DateTime.fromJSDate(acc.time)).as('seconds'),
-				)
-				const b = Math.abs(
-					now.diff(DateTime.fromJSDate(cur.time)).as('seconds'),
-				)
-				return a > b ? cur : acc
-			}, values[0])
-		},
-		[],
-	)
+	const mealData = homescreenDataQuery.data?.meal
+	const weatherData = homescreenDataQuery.data?.weather
 
-	const discomfortIdx = weatherQuery.data
+	const discomfortIdx = weatherData
 		? Math.round(
 				getDiscomfortIndex(
-					Number(getCurrentData(weatherQuery.data.TMP).value),
-					Number(getCurrentData(weatherQuery.data.REH).value) / 100,
+					Number(getCurrentData(weatherData.TMP).value),
+					Number(getCurrentData(weatherData.REH).value) / 100,
 				),
 		  )
 		: null
-	const apparentTemperature = weatherQuery.data
+	const apparentTemperature = weatherData
 		? Math.round(
 				getApparentTemperature(
-					Number(getCurrentData(weatherQuery.data.TMP).value),
-					Number(getCurrentData(weatherQuery.data.WSD).value),
+					Number(getCurrentData(weatherData.TMP).value),
+					Number(getCurrentData(weatherData.WSD).value),
 				),
 		  )
 		: null
+
+	const shouldDisplayDiscomfortIdx =
+		DateTime.now().setZone('Asia/Seoul').month < 9 &&
+		DateTime.now().setZone('Asia/Seoul').month > 3
 
 	return (
 		<View>
-			<View>
+			<View
+				style={css`
+					padding: 0 20px;
+				`}
+			>
 				<Text
 					style={css`
 						font-family: ${FONT.SPOQA('BOLD')};
@@ -132,39 +131,41 @@ const BottomSheetContent = () => {
 				>
 					오늘의 날씨
 				</Text>
-				<View
-					style={css`
-						margin-top: 4px;
-						padding: 20px;
-						background: #fafafa;
-						border-radius: 20px;
-					`}
-				>
-					<Text
+				{shouldDisplayDiscomfortIdx ? (
+					<View
 						style={css`
-							font-family: ${FONT.SPOQA('BOLD')};
-							font-size: 20px;
+							margin-top: 4px;
+							padding: 20px;
+							background: ${COLOR.GRAY(50)};
+							border-radius: 20px;
 						`}
 					>
-						{!discomfortIdx
-							? '불쾌지수 기상 데이터가 없습니다.'
-							: `불쾌지수: ${discomfortIdx}`}
-					</Text>
-					<Text
-						style={css`
-							margin-top: 10px;
-							font-size: 12px;
-							color: #888;
-						`}
-					>
-						{discomfortIdx ? getDiscomfortIndexComment(discomfortIdx) : ''}
-					</Text>
-				</View>
+						<Text
+							style={css`
+								font-family: ${FONT.SPOQA('BOLD')};
+								font-size: 20px;
+							`}
+						>
+							{!discomfortIdx
+								? '불쾌지수 기상 데이터가 없습니다.'
+								: `불쾌지수: ${discomfortIdx}`}
+						</Text>
+						<Text
+							style={css`
+								margin-top: 10px;
+								font-size: 12px;
+								color: ${COLOR.GRAY(400)};
+							`}
+						>
+							{discomfortIdx ? getDiscomfortIndexComment(discomfortIdx) : ''}
+						</Text>
+					</View>
+				) : null}
 				<View
 					style={css`
-						margin-top: 4px;
+						margin-top: 12px;
 						padding: 20px;
-						background: #fafafa;
+						background: ${COLOR.GRAY(50)};
 						border-radius: 20px;
 					`}
 				>
@@ -182,7 +183,7 @@ const BottomSheetContent = () => {
 						style={css`
 							margin-top: 10px;
 							font-size: 12px;
-							color: #888;
+							color: ${COLOR.GRAY(400)};
 						`}
 					>
 						{apparentTemperature
@@ -190,6 +191,151 @@ const BottomSheetContent = () => {
 							: ''}
 					</Text>
 				</View>
+			</View>
+			<Spacer y={24} />
+			<View>
+				<View
+					style={css`
+						padding: 0 20px;
+					`}
+				>
+					<Text
+						style={css`
+							font-family: ${FONT.SPOQA('BOLD')};
+							font-size: 20px;
+						`}
+					>
+						오늘의 식단
+					</Text>
+				</View>
+				{!mealData ? (
+					<View
+						style={css`
+							margin-top: 4px;
+							padding: 20px;
+							background: ${COLOR.GRAY(50)};
+							border-radius: 20px;
+						`}
+					>
+						<Text
+							style={css`
+								color: ${COLOR.GRAY(400)};
+							`}
+						>
+							설정에서 식단 메뉴를 선택하고 식단 데이터를 홈 화면에
+							추가해보세요!
+						</Text>
+						<Button
+							style={css`
+								margin-top: 8px;
+							`}
+							backgroundColor={COLOR.BRAND(200)}
+							onPress={() =>
+								navigation
+									.getParent<StackNavigationProp<RootStackParamList>>()
+									.navigate('SelectMealCode', {
+										callback: async (code) => {
+											const res = await userMutation.mutateAsync({
+												preferredMealBaseCode: code,
+											})
+											homescreenDataQuery.refetch()
+										},
+									})
+							}
+						>
+							<Text
+								style={css`
+									font-family: ${FONT.SPOQA('BOLD')};
+									font-size: 18px;
+									color: #fff;
+								`}
+							>
+								식단 메뉴 선택하기
+							</Text>
+						</Button>
+					</View>
+				) : (
+					<PagerView
+						style={[
+							{
+								height:
+									84 +
+									20 *
+										Math.max(
+											...[
+												mealData.breakfast,
+												mealData.lunch,
+												mealData.dinner,
+											].map((m) => m.menus.length),
+										),
+							},
+						]}
+						initialPage={0}
+					>
+						{[mealData.breakfast, mealData.lunch, mealData.dinner].map(
+							({ calories, menus }, idx) => (
+								<View
+									key={idx}
+									style={css`
+										padding: 12px;
+									`}
+								>
+									<View
+										style={css`
+											background: ${COLOR.GRAY(50)};
+											padding: 12px;
+											border-radius: 12px;
+										`}
+									>
+										<View
+											style={css`
+												flex-direction: row;
+												justify-content: space-between;
+												align-items: center;
+											`}
+										>
+											<Text
+												style={css`
+													font-family: ${FONT.SPOQA('BOLD')};
+													font-size: 18px;
+												`}
+											>
+												{['아침', '점심', '저녁'][idx % 3]}
+											</Text>
+											<Text
+												style={css`
+													font-size: 16px;
+													color: ${COLOR.BRAND(200)};
+												`}
+											>
+												{calories.toFixed(2)}kcal
+											</Text>
+										</View>
+										<View
+											style={css`
+												height: 1px;
+												background: ${COLOR.GRAY(300)};
+												border-radius: 2px;
+												margin: 4px 0;
+											`}
+										/>
+										{menus.map((menu, idx2) => (
+											<Text
+												style={css`
+													font-size: 14px;
+													margin-bottom: 4px;
+												`}
+												key={idx2}
+											>
+												{menu}
+											</Text>
+										))}
+									</View>
+								</View>
+							),
+						)}
+					</PagerView>
+				)}
 			</View>
 		</View>
 	)
@@ -438,7 +584,7 @@ const HomeScreen = () => {
 					</View>
 					<View
 						style={css`
-							padding: 10px 20px 40px 20px;
+							padding: 10px 0 40px 0;
 							background: #fff;
 						`}
 					>
