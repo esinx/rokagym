@@ -1,3 +1,4 @@
+import { TRPCClientError } from '@trpc/client'
 import Constants from 'expo-constants'
 import { useSetAtom } from 'jotai'
 import { useMemo } from 'react'
@@ -25,13 +26,29 @@ const TRPCProvider: React.FC = ({ children }) => {
 						suspense: true,
 						useErrorBoundary: true,
 						onError: (error) => {
-							console.error(error)
+							if ((error as Error).name === 'TRPCClientError') {
+								if (
+									(error as TRPCClientError<any>).data?.code === 'UNAUTHORIZED'
+								) {
+									setAccessToken(null)
+									setRefreshToken(null)
+								}
+							}
+							// console.error(error)
 						},
 					},
 					mutations: {
 						useErrorBoundary: true,
 						onError: (error) => {
-							console.error(error)
+							if ((error as Error).name === 'TRPCClientError') {
+								if (
+									(error as TRPCClientError<any>).data?.code === 'UNAUTHORIZED'
+								) {
+									setAccessToken(null)
+									setRefreshToken(null)
+								}
+							}
+							// console.error(error)
 						},
 					},
 				},

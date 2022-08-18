@@ -18,19 +18,28 @@ const createAuthorizedRouter = () =>
 				cause: 'TokenNotFound',
 				message: 'HTTP Authorization header is missing token',
 			})
-		const value = await jwt.verify(token)
-		if (!value)
+		try {
+			const value = await jwt.verify(token)
+			if (!value)
+				throw new trpc.TRPCError({
+					code: 'UNAUTHORIZED',
+					cause: 'InvalidToken',
+					message: 'JWT is invalid',
+				})
+			return next({
+				ctx: {
+					...ctx,
+					user: value.user,
+				},
+			})
+		} catch (error) {
 			throw new trpc.TRPCError({
 				code: 'UNAUTHORIZED',
 				cause: 'InvalidToken',
 				message: 'JWT is invalid',
 			})
-		return next({
-			ctx: {
-				...ctx,
-				user: value.user,
-			},
-		})
+			return next()
+		}
 	})
 
 export default createAuthorizedRouter
