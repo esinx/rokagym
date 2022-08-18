@@ -7,8 +7,8 @@
 		"watch": "ts-node cli/watch.ts",
 		"dev": "yarn run watch",
 		"test": "jest",
-		"bootstrap": "ts-node -r tsconfig-paths/register ./bootstrap",
-		"bootstrap-dummy": "ts-node -r tsconfig-paths/register ./bootstrap/dummy",
+		"bootstrap": "ts-node -T -r tsconfig-paths/register ./bootstrap",
+		"bootstrap-dummy": "ts-node -T -r tsconfig-paths/register ./bootstrap/dummy",
 		"prisma": "prisma generate",
 		"prisma-push": "prisma db push",
 		"prisma-migrate": "prisma migrate"
