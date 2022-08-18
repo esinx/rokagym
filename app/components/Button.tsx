@@ -34,6 +34,7 @@ const Button: React.FC<Props> = (props) => {
 		onPressOut,
 		children,
 		dismissKeyboardOnPress,
+		spinnerProps,
 		...passProps
 	} = props
 
@@ -64,7 +65,7 @@ const Button: React.FC<Props> = (props) => {
 				style,
 				{
 					backgroundColor: disabled
-						? tinycolor(backgroundColor).setAlpha(0.7).toHex8String()
+						? tinycolor(backgroundColor).setAlpha(0.3).toHex8String()
 						: active
 						? activeColor ?? tinycolor(backgroundColor).darken(4).toHexString()
 						: backgroundColor,

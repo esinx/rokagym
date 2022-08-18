@@ -1,16 +1,17 @@
 import styled, { css } from '@emotion/native'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { StackScreenProps } from '@react-navigation/stack'
-import { useMemo } from 'react'
-import { useForm } from 'react-hook-form'
-import { SafeAreaView, Text, View } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import { StackNavigationProp, StackScreenProps } from '@react-navigation/stack'
+import { useCallback, useMemo } from 'react'
+import { SubmitHandler, useForm } from 'react-hook-form'
+import { Alert, SafeAreaView, Text, View } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { z } from 'zod'
 
 import { RootStackParamList } from '@/App'
 import AsyncBoundary from '@/components/AsyncBoundary'
+import Button from '@/components/Button'
 import Controlled from '@/components/controlled'
-import PressableHighlight from '@/components/PressableHighlight'
 import RGModalSelection from '@/components/RGModalSelection'
 import Spacer from '@/components/Spacer'
 import WorkoutIcon from '@/components/WorkoutIcon'
@@ -29,7 +30,7 @@ type Props = StackScreenProps<RootStackParamList, 'TrainingGoalCreation'>
 
 const formSchema = z.object({
 	workoutTypeId: z.string(),
-	value: z.number(),
+	value: z.string(),
 	extraValue: z.string().optional(),
 	comment: z.string().optional(),
 })
@@ -37,13 +38,18 @@ const formSchema = z.object({
 type FieldValues = z.infer<typeof formSchema>
 
 const FormContent: React.FC = () => {
+	const navigation = useNavigation<StackNavigationProp<RootStackParamList>>()
+
 	const workoutTypesQuery = trpc.useQuery(['workout.getWorkouts'])
+	const createGoalMutation = trpc.useMutation([
+		'workout.createDailyWorkoutGoal',
+	])
 
 	const {
 		register,
 		handleSubmit,
 		control,
-		formState: { isValid },
+		formState: { isValid, isSubmitting },
 		...form
 	} = useForm<FieldValues>({
 		resolver: zodResolver(formSchema),
@@ -75,6 +81,30 @@ const FormContent: React.FC = () => {
 			(w) => w.id === form.watch('workoutTypeId'),
 		)
 	}, [workoutTypesQuery.data, form.watch('workoutTypeId')])
+
+	const onSubmit = useCallback<SubmitHandler<FieldValues>>(
+		async ({ value, workoutTypeId, comment, extraValue }) => {
+			try {
+				const res = await createGoalMutation.mutateAsync({
+					value: Number(value),
+					workoutTypeId,
+					comment,
+					extraValue,
+				})
+				Alert.alert('성공', '새 목표를 설정하였습니다. 화이팅!', [
+					{
+						text: '확인',
+						onPress: () => {
+							navigation.pop()
+						},
+					},
+				])
+			} catch (error) {
+				console.error(error)
+			}
+		},
+		[],
+	)
 
 	if (!workoutTypesQuery.data) return null
 
@@ -170,34 +200,38 @@ const FormContent: React.FC = () => {
 			{form.watch('value') ? (
 				<View>
 					<Spacer y={24} />
-					<PressableHighlight
-						color={COLOR.BRAND(200)}
-						style={css`
-							border-radius: 12px;
-							padding: 12px;
-							align-items: center;
-						`}
+					<Button
+						onPress={handleSubmit(onSubmit)}
+						disabled={!isValid}
+						loading={isSubmitting}
+						backgroundColor={COLOR.BRAND(200)}
 					>
-						<Text
+						<View
 							style={css`
-								font-size: 18px;
-								color: #ffffffcc;
+								align-items: center;
 							`}
 						>
-							새 목표 설정:
-						</Text>
-						<Text
-							style={css`
-								margin-top: 4px;
-								font-size: 18px;
-								font-family: ${FONT.SPOQA('BOLD')};
-								color: #fff;
-							`}
-						>
-							매일매일 {form.watch('value')}
-							{unitToKorean(currentWorkoutType?.unit ?? '')}!
-						</Text>
-					</PressableHighlight>
+							<Text
+								style={css`
+									font-size: 18px;
+									color: #ffffffcc;
+								`}
+							>
+								새 목표 설정:
+							</Text>
+							<Text
+								style={css`
+									margin-top: 4px;
+									font-size: 18px;
+									font-family: ${FONT.SPOQA('BOLD')};
+									color: #fff;
+								`}
+							>
+								매일매일 {form.watch('value')}
+								{unitToKorean(currentWorkoutType?.unit ?? '')}!
+							</Text>
+						</View>
+					</Button>
 				</View>
 			) : null}
 			<View></View>

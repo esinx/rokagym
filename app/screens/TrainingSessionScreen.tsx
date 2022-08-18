@@ -1,7 +1,9 @@
 import SkeletonContent from '@03balogun/react-native-skeleton-content'
 import { css } from '@emotion/native'
+import { useFocusEffect } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
-import { useCallback, useState } from 'react'
+import { DateTime } from 'luxon'
+import { useCallback, useRef, useState } from 'react'
 import { Text, View } from 'react-native'
 
 import { RootStackParamList } from '@/App'
@@ -43,12 +45,30 @@ const RecentRecord: React.FC<{ workoutTypeId: string }> = ({
 	)
 }
 
+const padtwo = (num: Number) =>
+	String(num).length >= 2 ? String(num) : '0' + num
+
 const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 	const [started, setStarted] = useState(false)
+	const [startedTime, setStartedTime] = useState<DateTime>()
+	const [currentDuration, setCurrentDuration] = useState<number>(0)
+	const interval = useRef<number>()
 
 	const startWorkout = useCallback(() => {
 		setStarted(true)
+		setStartedTime(DateTime.now())
 	}, [])
+
+	useFocusEffect(
+		useCallback(() => {
+			if (startedTime) {
+				interval.current = setInterval(() => {
+					setCurrentDuration(-1 * startedTime.diffNow().as('seconds'))
+				}, 200) as unknown as number
+				return () => clearInterval(interval.current)
+			}
+		}, [startedTime]),
+	)
 
 	return (
 		<View
@@ -141,7 +161,8 @@ const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 						font-variant: tabular-nums;
 					`}
 				>
-					--:--
+					{padtwo(Math.floor(currentDuration / 60))}:
+					{padtwo(Math.floor(currentDuration % 60))}
 				</Text>
 				<Text
 					style={css`

@@ -1,7 +1,8 @@
 import { css } from '@emotion/native'
 import { FontAwesome } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
+import { useCallback, useState } from 'react'
 import { SafeAreaView, SectionList, Text, View } from 'react-native'
 
 import { RootStackParamList } from '@/App'
@@ -133,6 +134,17 @@ const Content: React.FC = () => {
 			refetchOnWindowFocus: true,
 		},
 	)
+
+	const [isPullToRefresh, setIsPullToRefresh] = useState(false)
+
+	useFocusEffect(
+		useCallback(() => {
+			setIsPullToRefresh(false)
+			dailyGoalQuery.refetch()
+			progressQuery.refetch()
+		}, []),
+	)
+
 	if (!dailyGoalQuery.data || !progressQuery.data) {
 		return null
 	}
@@ -149,8 +161,12 @@ const Content: React.FC = () => {
 	return (
 		<SectionList
 			data={dailyGoalQuery.data}
-			refreshing={progressQuery.isRefetching || dailyGoalQuery.isRefetching}
+			refreshing={
+				isPullToRefresh &&
+				(progressQuery.isRefetching || dailyGoalQuery.isRefetching)
+			}
 			onRefresh={() => {
+				setIsPullToRefresh(true)
 				progressQuery.refetch()
 				dailyGoalQuery.refetch()
 			}}
@@ -161,7 +177,7 @@ const Content: React.FC = () => {
 			SectionSeparatorComponent={() => <Spacer y={18} />}
 			sections={[
 				{
-					key: 'ring',
+					key: progressQuery.data.length > 0 ? 'ring' : 'none',
 					data: [],
 				},
 				{

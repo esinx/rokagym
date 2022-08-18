@@ -38,7 +38,6 @@ const createAuthorizedRouter = () =>
 				cause: 'InvalidToken',
 				message: 'JWT is invalid',
 			})
-			return next()
 		}
 	})
 
