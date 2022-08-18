@@ -10,11 +10,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { z } from 'zod'
 
 import { RootStackParamList } from '@/App'
-import Button from '@/components/Button'
 import Controlled from '@/components/controlled'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
 import PlainNavigationBar from '@/components/PlainNavigationBar'
 import PressableHighlight from '@/components/PressableHighlight'
+import RGDatePicker from '@/components/RGDateInput'
 import Spacer from '@/components/Spacer'
 import { accessTokenAtom, refreshTokenAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
@@ -50,7 +50,7 @@ type Props = StackScreenProps<RootStackParamList, 'Login'>
 const formSchema = z
 	.object({
 		name: z.string().min(1, '이름을 입력해주세요'),
-		birthday: z.string(),
+		birthday: z.date(),
 		sex: z.enum(['MALE', 'FEMALE']),
 		rank: z.string(),
 		baseId: z.string(),
@@ -138,7 +138,7 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 			.then((base) => base && setSelectedBase(base))
 	}, [form.watch('baseId')])
 
-	console.log({ errors, isValid })
+	console.log({ values: form.getValues(), errors, isValid })
 
 	return (
 		<SafeAreaView
@@ -169,7 +169,16 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 				>
 					가입하기
 				</Text>
-				<Spacer y={48} />
+				<Text
+					style={css`
+						color: ${COLOR.GRAY(400)};
+						line-height: 24px;
+					`}
+				>
+					장병 여러분들의 꾸준한 체력단련을 응원합니다!{'\n'}가입하기 위해 아래
+					정보를 기입해주세요.
+				</Text>
+				<Spacer y={24} />
 				<Controlled.RGTextInput
 					label="이름"
 					placeholder="이름을 입력해주세요"
@@ -206,9 +215,9 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					error={errors.confirmPassword?.message}
 				/>
 				<Spacer y={16} />
-				<Controlled.RGDatePicker
-					name="birthday"
-					control={control}
+				<RGDatePicker
+					date={form.watch('birthday')}
+					onConfirm={(date) => form.setValue('birthday', date)}
 					label="생년월일"
 				/>
 				<Spacer y={16} />
@@ -284,19 +293,26 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 					</Text>
 				</PressableHighlight>
 				<Spacer y={16} />
-				<Button
+				<PressableHighlight
 					disabled={!isValid}
-					backgroundColor={COLOR.BRAND(300)}
+					color={isValid ? COLOR.BRAND(200) : COLOR.GRAY(200)}
+					style={css`
+						padding: 20px;
+						border-radius: 12px;
+						align-items: center;
+					`}
 					onPress={handleSubmit(onSubmit)}
 				>
 					<Text
 						style={css`
 							color: #fff;
+							font-size: 18px;
+							font-family: ${FONT.SPOQA('BOLD')};
 						`}
 					>
 						가입하기
 					</Text>
-				</Button>
+				</PressableHighlight>
 			</KeyboardAwareScrollView>
 			<FocusAwareStatusBar style="light" />
 		</SafeAreaView>

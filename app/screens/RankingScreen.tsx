@@ -7,24 +7,12 @@ import { MaterialTabBar, Tabs } from 'react-native-collapsible-tab-view'
 import AsyncBoundary from '@/components/AsyncBoundary'
 import ErrorBox from '@/components/ErrorBox'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
-import PercentIcon from '@/components/icons/Percent'
 import Spinner from '@/components/Spinner'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
 import getGroupNameFromCode from '@/utils/group-name'
 import { trpc } from '@/utils/trpc'
 import { workoutTypeToUnit } from '@/utils/unit'
-
-const DummyScrollView = () => (
-	// @ts-expect-error
-	<Tabs.ScrollView>
-		<View
-			style={css`
-				min-height: 1200px;
-			`}
-		/>
-	</Tabs.ScrollView>
-)
 
 const RankingView: React.FC<{ id: string }> = ({ id }) => {
 	const rankingQuery = trpc.useQuery([
@@ -34,7 +22,18 @@ const RankingView: React.FC<{ id: string }> = ({ id }) => {
 		},
 	])
 	const response = rankingQuery.data
-	if (!response) return null
+	if (!response)
+		return (
+			<View
+				style={css`
+					flex: 1;
+					justify-content: center;
+					align-items: center;
+				`}
+			>
+				<Spinner />
+			</View>
+		)
 	return (
 		<Tabs.FlatList
 			onRefresh={() => rankingQuery.refetch()}
@@ -166,112 +165,116 @@ const SuspendedRankingView: React.FC<
 				</View>
 			)
 		}}
-		SuspenseFallback={<Spinner />}
+		SuspenseFallback={
+			<View
+				style={css`
+					flex: 1;
+					justify-content: center;
+					align-items: center;
+				`}
+			>
+				<Spinner />
+			</View>
+		}
 	>
 		<RankingView {...props} />
 	</AsyncBoundary>
 )
 
+const SuspendedContent: React.FC = () => {
+	const profileQuery = trpc.useQuery(['user.profile'])
+
+	if (!profileQuery.data) return null
+
+	const groupId = profileQuery.data.base.group
+	const groupName = getGroupNameFromCode(groupId, true)
+
+	return (
+		<Tabs.Container
+			renderHeader={() => (
+				<View
+					style={css`
+						align-items: center;
+						justify-content: center;
+						padding: 20px;
+					`}
+				></View>
+			)}
+			headerContainerStyle={css`
+				shadow-opacity: 0;
+			`}
+			renderTabBar={(props) => (
+				<MaterialTabBar
+					{...props}
+					keepActiveTabCentered
+					scrollEnabled
+					activeColor={COLOR.BRAND('main')}
+					labelStyle={css`
+						font-family: ${FONT.SPOQA('BOLD')};
+						font-weight: 700;
+						font-size: 16px;
+					`}
+					indicatorStyle={css`
+						height: 3px;
+						border-radius: 3px;
+						background: ${COLOR.BRAND('main')};
+					`}
+					contentContainerStyle={css`
+						padding: 0 20px;
+					`}
+				/>
+			)}
+		>
+			<Tabs.Tab name="명예의 전당">
+				<SuspendedRankingView id="ALL.run.daily" />
+			</Tabs.Tab>
+			<Tabs.Tab name="전군 뜀걸음(일별)">
+				<SuspendedRankingView id="ALL.run.daily" />
+			</Tabs.Tab>
+			<Tabs.Tab name="전군 팔굽혀펴기(일별)">
+				<SuspendedRankingView id="ALL.pushup.daily" />
+			</Tabs.Tab>
+			<Tabs.Tab name="전군 윗몸일으키기(일별)">
+				<SuspendedRankingView id="ALL.situp.daily" />
+			</Tabs.Tab>
+			<Tabs.Tab name={`${groupName} 뜀걸음(일별)`}>
+				<SuspendedRankingView id={`${groupId}.run.daily`} />
+			</Tabs.Tab>
+			<Tabs.Tab name={`${groupName} 팔굽혀펴기(일별)`}>
+				<SuspendedRankingView id={`${groupId}.pushup.daily`} />
+			</Tabs.Tab>
+			<Tabs.Tab name={`${groupName} 윗몸일으키기(일별)`}>
+				<SuspendedRankingView id={`${groupId}.situp.daily`} />
+			</Tabs.Tab>
+		</Tabs.Container>
+	)
+}
+
 const RankingScreen = () => {
 	return (
 		<>
-			<SafeAreaView
-				style={css`
-					flex: 1;
-					justify-content: space-between;
-				`}
+			<AsyncBoundary
+				SuspenseFallback={
+					<View
+						style={css`
+							flex: 1;
+							justify-content: center;
+							align-items: center;
+						`}
+					>
+						<Spinner />
+					</View>
+				}
 			>
-				<Tabs.Container
-					renderHeader={() => (
-						<View
-							style={css`
-								align-items: center;
-								justify-content: center;
-								padding: 20px;
-							`}
-						>
-							<Text
-								style={css`
-									font-family: ${FONT.ROKA};
-									color: #ccc;
-									font-size: 24px;
-								`}
-							>
-								나의 랭킹
-							</Text>
-							<Text
-								style={css`
-									font-family: ${FONT.ROKA};
-									font-size: 32px;
-								`}
-							>
-								전군상위
-							</Text>
-							<View
-								style={css`
-									flex-direction: row;
-									align-items: flex-start;
-								`}
-							>
-								<Text
-									style={css`
-										font-family: ${FONT.SPOQA('BOLD')};
-										color: ${COLOR.BRAND('main')};
-										font-size: 64px;
-										line-height: 72px;
-									`}
-								>
-									7.23
-								</Text>
-								<PercentIcon style={{ width: 36, height: 36 }} color="#000" />
-							</View>
-						</View>
-					)}
-					headerContainerStyle={css`
-						shadow-opacity: 0;
+				<SafeAreaView
+					style={css`
+						flex: 1;
+						justify-content: space-between;
 					`}
-					renderTabBar={(props) => (
-						<MaterialTabBar
-							{...props}
-							keepActiveTabCentered
-							scrollEnabled
-							activeColor={COLOR.BRAND('main')}
-							labelStyle={css`
-								font-family: ${FONT.SPOQA('BOLD')};
-								font-weight: 700;
-								font-size: 16px;
-							`}
-							indicatorStyle={css`
-								height: 3px;
-								border-radius: 3px;
-								background: ${COLOR.BRAND('main')};
-							`}
-							contentContainerStyle={css`
-								padding: 0 20px;
-							`}
-						/>
-					)}
 				>
-					<Tabs.Tab name="전군 뜀걸음(일별)">
-						<SuspendedRankingView id="ALL.run.daily" />
-					</Tabs.Tab>
-					<Tabs.Tab name="전군 팔굽혀펴기(일별)">
-						<SuspendedRankingView id="ALL.pushup.daily" />
-					</Tabs.Tab>
-					<Tabs.Tab name="전군 윗몸일으키기(일별)">
-						<SuspendedRankingView id="ALL.situp.daily" />
-					</Tabs.Tab>
-					<Tabs.Tab name="육군 뜀걸음(일별)">
-						<SuspendedRankingView id="ARMY.run.daily" />
-					</Tabs.Tab>
-					<Tabs.Tab name="육군 팔굽혀펴기(일별)">
-						<SuspendedRankingView id="ARMY.pushup.daily" />
-					</Tabs.Tab>
-					<Tabs.Tab name="육군 윗몸일으키기(일별)">
-						<SuspendedRankingView id="ARMY.situp.daily" />
-					</Tabs.Tab>
-				</Tabs.Container>
-			</SafeAreaView>
+					<SuspendedContent />
+				</SafeAreaView>
+			</AsyncBoundary>
 			<FocusAwareStatusBar style="dark" />
 		</>
 	)

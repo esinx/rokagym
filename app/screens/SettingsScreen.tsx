@@ -62,9 +62,17 @@ const SettingsScreen: React.FC<Props> = ({ navigation }) => {
 			<SafeAreaView
 				style={css`
 					flex: 1;
-					justify-content: center;
 				`}
 			>
+				<Section
+					title="개인정보"
+					subtitle="개인정보를 수정합니다"
+					containerStyle={css`
+						padding: 12px;
+					`}
+				>
+					<Spacer y={12} />
+				</Section>
 				<Section
 					title="홈 화면 정보"
 					subtitle="홈 화면에 표시되는 기상정보와 식단정보 기준을 수정합니다"

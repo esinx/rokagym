@@ -11,6 +11,7 @@ import { z } from 'zod'
 import { RootStackParamList } from '@/App'
 import Button from '@/components/Button'
 import Controlled from '@/components/controlled'
+import PlainNavigationBar from '@/components/PlainNavigationBar'
 import Spacer from '@/components/Spacer'
 import { accessTokenAtom, refreshTokenAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
@@ -93,6 +94,12 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
 					padding: 40px 20px;
 				`}
 			>
+				<PlainNavigationBar
+					withoutInsets
+					style={css`
+						padding: 12px 0;
+					`}
+				/>
 				<Text
 					style={css`
 						font-family: ${FONT.SPOQA('BOLD')};
@@ -100,6 +107,13 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
 					`}
 				>
 					환영합니다!
+				</Text>
+				<Text
+					style={css`
+						color: ${COLOR.GRAY(400)};
+					`}
+				>
+					이메일 / 비밀번호를 입력하여 로그인해주세요
 				</Text>
 				<Spacer y={48} />
 				<Controlled.RGTextInput
@@ -127,6 +141,33 @@ const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
 						`}
 					>
 						로그인
+					</Text>
+				</Button>
+				<Spacer y={24} />
+				<Text
+					style={css`
+						color: ${COLOR.GRAY(400)};
+						text-align: center;
+					`}
+				>
+					체단실이 처음인가요?
+				</Text>
+				<Spacer y={12} />
+				<Button
+					backgroundColor={COLOR.GRAY(100)}
+					onPress={() => {
+						navigation.navigate('Signup', {
+							trap: false,
+						})
+					}}
+				>
+					<Text
+						style={css`
+							font-family: ${FONT.SPOQA('BOLD')};
+							color: ${COLOR.BRAND(200)};
+						`}
+					>
+						가입하기
 					</Text>
 				</Button>
 			</View>
