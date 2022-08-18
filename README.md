@@ -55,8 +55,13 @@
 ## TODO
 
 - Frontend
+
   - Workout Log (after workout) screen
   - Assessment Screen
-  - User Update Screen
-    - Set Base Location
-    - Set Base Meal Data Code
+
+  * Workout Calendar
+  * Training Goal History
+
+- Backend
+  - Workout Total by MilGroup
+  - Top 3 Records from Assessment by MilGroup "Hall of Fame"
