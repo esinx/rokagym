@@ -39,7 +39,7 @@ afterAll(() => {
 	prisma.$disconnect()
 })
 
-describe.only('region', () => {
+describe('region', () => {
 	test('region level 0', async () => {
 		const res = await client.query('opendata.getRegionCodesLevel0')
 		expect(res).toContain('서울특별시')
@@ -245,14 +245,20 @@ describe('user creation and login', () => {
 	})
 })
 
-test('getMeal', async () => {
-	const res = await client.query('meal.getDailyMeal', {
-		baseCode: '6335',
+describe.only('meals', () => {
+	test('getMeal', async () => {
+		const res = await client.query('meal.getDailyMeal', {
+			baseCode: '6335',
+		})
+		expect(res).toHaveProperty('breakfast')
+		expect(res).toHaveProperty('lunch')
+		expect(res).toHaveProperty('dinner')
+		console.log(
+			`[e2e] getMeal({baseCode: '6335'}) => ${JSON.stringify(res, null, 2)}`,
+		)
 	})
-	expect(res).toHaveProperty('breakfast')
-	expect(res).toHaveProperty('lunch')
-	expect(res).toHaveProperty('dinner')
-	console.log(
-		`[e2e] getMeal({baseCode: '6335'}) => ${JSON.stringify(res, null, 2)}`,
-	)
+	test('getAllMeals', async () => {
+		const res = await client.query('meal.getAllMeals')
+		console.log(res)
+	})
 })
