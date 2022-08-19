@@ -20,6 +20,7 @@ import SessionController from '@/components/SessionController'
 import Spinner from '@/components/Spinner'
 import TRPCProvider from '@/components/TRPCProvider'
 import useSessionEventActor from '@/hooks/use-session-event-actor'
+import AssessmentSessionScreen from '@/screens/AssessmentSessionScreen'
 import FitnessTestCriteriaScreen from '@/screens/FitnessTestCriteriaScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import HospitalScreen from '@/screens/HospitalScreen'
@@ -33,6 +34,7 @@ import SignupScreen from '@/screens/SignupScreen'
 import TrainingGoalCreationScreen from '@/screens/TrainingGoalCreationScreen'
 import TrainingScreen from '@/screens/TrainingScreen'
 import TrainingSessionScreen from '@/screens/TrainingSessionScreen'
+import WorkoutResultScreen from '@/screens/WorkoutResultScreen'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
 import { navigationRef } from '@/utils/root-navigation'
@@ -53,8 +55,13 @@ export type RootStackParamList = {
 		workoutTypeId: string
 		workoutType: WorkoutType
 	}
+	AssessmentSession: undefined
 	TrainingGoalCreation: {
 		daily?: boolean
+	}
+	WorkoutResult: {
+		workoutType: WorkoutType
+		duration: number
 	}
 	SelectBase: { callback?: (base: Base) => void }
 	SelectMealCode: { callback?: (mealCode: string) => void }
@@ -240,6 +247,30 @@ const App = () => {
 							component={TrainingSessionScreen}
 							options={{
 								title: '트레이닝',
+								headerShown: false,
+								gestureEnabled: false,
+								cardStyle: {
+									backgroundColor: COLOR.BRAND(300),
+								},
+							}}
+						/>
+						<RootStack.Screen
+							name="AssessmentSession"
+							component={AssessmentSessionScreen}
+							options={{
+								title: '체력측정',
+								headerShown: false,
+								gestureEnabled: false,
+								cardStyle: {
+									backgroundColor: COLOR.BRAND(300),
+								},
+							}}
+						/>
+						<RootStack.Screen
+							name="WorkoutResult"
+							component={WorkoutResultScreen}
+							options={{
+								title: '트레이닝 결과',
 								headerShown: false,
 								gestureEnabled: false,
 								cardStyle: {

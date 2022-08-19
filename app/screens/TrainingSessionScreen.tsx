@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
 import { DateTime } from 'luxon'
 import { useCallback, useRef, useState } from 'react'
-import { Text, View } from 'react-native'
+import { Alert, Text, View } from 'react-native'
 
 import { RootStackParamList } from '@/App'
 import AsyncBoundary from '@/components/AsyncBoundary'
@@ -39,7 +39,7 @@ const RecentRecord: React.FC<{ workoutTypeId: string }> = ({
 				color: #fff;
 			`}
 		>
-			최근 기록: {log?.value}
+			최근 기록: {log?.value ?? '-'}
 			{unitToKorean(log?.type.unit ?? '')}
 		</Text>
 	)
@@ -53,21 +53,32 @@ const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 	const [startedTime, setStartedTime] = useState<DateTime>()
 	const [currentDuration, setCurrentDuration] = useState<number>(0)
 	const interval = useRef<number>()
+	const durationRef = useRef<number>()
 
 	const startWorkout = useCallback(() => {
 		setStarted(true)
 		setStartedTime(DateTime.now())
 	}, [])
 
+	const endWorkout = useCallback(() => {
+		clearInterval(interval.current)
+		setStarted(false)
+		navigation.replace('WorkoutResult', {
+			workoutType: route.params.workoutType,
+			duration: durationRef.current ?? 0,
+		})
+	}, [])
+
 	useFocusEffect(
 		useCallback(() => {
-			if (startedTime) {
+			if (started && startedTime) {
 				interval.current = setInterval(() => {
 					setCurrentDuration(-1 * startedTime.diffNow().as('seconds'))
+					durationRef.current = -1 * startedTime.diffNow().as('seconds')
 				}, 200) as unknown as number
 				return () => clearInterval(interval.current)
 			}
-		}, [startedTime]),
+		}, [started, startedTime]),
 	)
 
 	return (
@@ -175,10 +186,13 @@ const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 			</View>
 			<View>
 				<Button
+					disabled={started && currentDuration < 10}
 					backgroundColor="#FFF"
 					onPress={() => {
 						if (!started) {
 							startWorkout()
+						} else {
+							endWorkout()
 						}
 					}}
 				>
@@ -193,7 +207,30 @@ const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 					</Text>
 				</Button>
 				<Spacer y={24} />
-				<Button backgroundColor="#FFF" onPress={() => navigation.pop()}>
+				<Button
+					backgroundColor="#FFF"
+					onPress={() => {
+						if (started) {
+							Alert.alert(
+								'정말로 나가시겠어요?',
+								'트레이닝을 종료하면 기록이 초기화되어 다시 시작해야합니다.',
+								[
+									{
+										text: '네, 나갈래요.',
+										onPress: () => navigation.pop(),
+										style: 'destructive',
+									},
+
+									{
+										text: '아니요!',
+									},
+								],
+							)
+						} else {
+							navigation.pop()
+						}
+					}}
+				>
 					<Text
 						style={css`
 							font-family: ${FONT.ROKA};

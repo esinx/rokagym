@@ -86,6 +86,7 @@ const BottomSheetContent = () => {
 
 	const homescreenDataQuery = trpc.useQuery(['user.homescreen-data'])
 	const userMutation = trpc.useMutation(['user.update'])
+
 	useFocusEffect(
 		useCallback(() => {
 			homescreenDataQuery.refetch()
@@ -95,22 +96,24 @@ const BottomSheetContent = () => {
 	const mealData = homescreenDataQuery.data?.meal
 	const weatherData = homescreenDataQuery.data?.weather
 
-	const discomfortIdx = weatherData
-		? Math.round(
-				getDiscomfortIndex(
-					Number(getCurrentData(weatherData.TMP).value),
-					Number(getCurrentData(weatherData.REH).value) / 100,
-				),
-		  )
-		: null
-	const apparentTemperature = weatherData
-		? Math.round(
-				getApparentTemperature(
-					Number(getCurrentData(weatherData.TMP).value),
-					Number(getCurrentData(weatherData.WSD).value),
-				),
-		  )
-		: null
+	const discomfortIdx =
+		weatherData?.TMP && weatherData?.REH
+			? Math.round(
+					getDiscomfortIndex(
+						Number(getCurrentData(weatherData.TMP).value),
+						Number(getCurrentData(weatherData.REH).value) / 100,
+					),
+			  )
+			: null
+	const apparentTemperature =
+		weatherData?.TMP && weatherData?.WSD
+			? Math.round(
+					getApparentTemperature(
+						Number(getCurrentData(weatherData.TMP).value),
+						Number(getCurrentData(weatherData.WSD).value),
+					),
+			  )
+			: null
 
 	const shouldDisplayDiscomfortIdx =
 		DateTime.now().setZone('Asia/Seoul').month < 9 &&
@@ -134,7 +137,7 @@ const BottomSheetContent = () => {
 				{shouldDisplayDiscomfortIdx ? (
 					<View
 						style={css`
-							margin-top: 4px;
+							margin-top: 12px;
 							padding: 20px;
 							background: ${COLOR.GRAY(50)};
 							border-radius: 20px;
@@ -146,9 +149,9 @@ const BottomSheetContent = () => {
 								font-size: 20px;
 							`}
 						>
-							{!discomfortIdx
-								? '불쾌지수 기상 데이터가 없습니다.'
-								: `불쾌지수: ${discomfortIdx}`}
+							{discomfortIdx
+								? `불쾌지수: ${discomfortIdx}`
+								: '불쾌지수 기상 데이터가 없습니다.'}
 						</Text>
 						<Text
 							style={css`
@@ -157,7 +160,9 @@ const BottomSheetContent = () => {
 								color: ${COLOR.GRAY(400)};
 							`}
 						>
-							{discomfortIdx ? getDiscomfortIndexComment(discomfortIdx) : ''}
+							{discomfortIdx
+								? getDiscomfortIndexComment(discomfortIdx)
+								: '불쾌지수 기상 데이터가 없습니다.'}
 						</Text>
 					</View>
 				) : null}
@@ -175,9 +180,9 @@ const BottomSheetContent = () => {
 							font-size: 20px;
 						`}
 					>
-						{!apparentTemperature
-							? '체감온도 기상 데이터가 없습니다.'
-							: `체감온도: ${apparentTemperature}℃`}
+						{apparentTemperature
+							? `체감온도: ${apparentTemperature}℃`
+							: '체감온도 기상 데이터가 없습니다.'}
 					</Text>
 					<Text
 						style={css`
@@ -188,7 +193,7 @@ const BottomSheetContent = () => {
 					>
 						{apparentTemperature
 							? getApparentTemperatureComment(apparentTemperature)
-							: ''}
+							: '체감온도 기상 데이터가 없습니다.'}
 					</Text>
 				</View>
 			</View>
@@ -211,55 +216,63 @@ const BottomSheetContent = () => {
 				{!mealData ? (
 					<View
 						style={css`
-							margin-top: 4px;
-							padding: 20px;
-							background: ${COLOR.GRAY(50)};
-							border-radius: 20px;
+							margin-top: 12px;
+							padding: 0 20px;
 						`}
 					>
-						<Text
+						<View
 							style={css`
-								color: ${COLOR.GRAY(400)};
+								padding: 20px;
+								background: ${COLOR.GRAY(50)};
+								border-radius: 20px;
 							`}
-						>
-							설정에서 식단 메뉴를 선택하고 식단 데이터를 홈 화면에
-							추가해보세요!
-						</Text>
-						<Button
-							style={css`
-								margin-top: 8px;
-							`}
-							backgroundColor={COLOR.BRAND(200)}
-							onPress={() =>
-								navigation
-									.getParent<StackNavigationProp<RootStackParamList>>()
-									.navigate('SelectMealCode', {
-										callback: async (code) => {
-											const res = await userMutation.mutateAsync({
-												preferredMealBaseCode: code,
-											})
-											homescreenDataQuery.refetch()
-										},
-									})
-							}
 						>
 							<Text
 								style={css`
-									font-family: ${FONT.SPOQA('BOLD')};
-									font-size: 18px;
-									color: #fff;
+									color: ${COLOR.GRAY(400)};
 								`}
 							>
-								식단 메뉴 선택하기
+								설정에서 식단 메뉴를 선택하고 식단 데이터를 홈 화면에
+								추가해보세요!
 							</Text>
-						</Button>
+							<Button
+								style={css`
+									margin-top: 8px;
+								`}
+								backgroundColor={COLOR.BRAND(200)}
+								onPress={() =>
+									navigation
+										.getParent<StackNavigationProp<RootStackParamList>>()
+										.navigate('SelectMealCode', {
+											callback: async (code) => {
+												const res = await userMutation.mutateAsync({
+													preferredMealBaseCode: code,
+												})
+												setImmediate(() => {
+													homescreenDataQuery.refetch()
+												})
+											},
+										})
+								}
+							>
+								<Text
+									style={css`
+										font-family: ${FONT.SPOQA('BOLD')};
+										font-size: 18px;
+										color: #fff;
+									`}
+								>
+									식단 메뉴 선택하기
+								</Text>
+							</Button>
+						</View>
 					</View>
 				) : (
 					<PagerView
 						style={[
 							{
 								height:
-									84 +
+									100 +
 									20 *
 										Math.max(
 											...[
@@ -271,13 +284,14 @@ const BottomSheetContent = () => {
 							},
 						]}
 						initialPage={0}
+						overdrag
 					>
 						{[mealData.breakfast, mealData.lunch, mealData.dinner].map(
 							({ calories, menus }, idx) => (
 								<View
 									key={idx}
 									style={css`
-										padding: 12px;
+										padding: 20px;
 									`}
 								>
 									<View

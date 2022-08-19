@@ -431,6 +431,7 @@ const Content: React.FC = () => {
 									padding: 12px;
 									align-items: center;
 								`}
+								onPress={() => navigation.push('AssessmentSession')}
 							>
 								<Text
 									style={css`

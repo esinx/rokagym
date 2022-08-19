@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { LayoutChangeEvent } from "react-native";
+import { useState } from 'react'
+import { LayoutChangeEvent } from 'react-native'
 
 export const useLayout = () => {
-  const [layout, setLayout] = useState<
-    LayoutChangeEvent["target"] | undefined
-  >();
-  return {
-    layout,
-    onLayout: (evt: LayoutChangeEvent) => setLayout(evt.target),
-  };
-};
+	const [layout, setLayout] = useState<
+		LayoutChangeEvent['nativeEvent']['layout'] | undefined
+	>()
+	return {
+		layout,
+		onLayout: (evt: LayoutChangeEvent) => setLayout(evt.nativeEvent.layout),
+	}
+}

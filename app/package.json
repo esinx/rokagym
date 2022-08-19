@@ -39,6 +39,7 @@
     "react-error-boundary": "^3.1.4",
     "react-hook-form": "^7.34.0",
     "react-native": "0.68.2",
+    "react-native-animateable-text": "^0.10.1",
     "react-native-collapsible-tab-view": "^5.0.0-rc.13",
     "react-native-date-picker": "^4.2.5",
     "react-native-element-dropdown": "^2.1.0",

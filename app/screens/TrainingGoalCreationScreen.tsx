@@ -59,7 +59,6 @@ const FormContent: React.FC = () => {
 
 	const valueInput = useMemo(() => {
 		const workoutTypeId = form.watch('workoutTypeId')
-		console.log(workoutTypeId)
 		switch (workoutTypeId) {
 			case 'run':
 				return (
@@ -67,6 +66,16 @@ const FormContent: React.FC = () => {
 						control={control}
 						name="value"
 						placeholder="5km"
+						keyboardType="numeric"
+					/>
+				)
+			case 'pushup':
+			case 'situp':
+				return (
+					<Controlled.RGTextInput
+						control={control}
+						name="value"
+						placeholder="50개"
 						keyboardType="numeric"
 					/>
 				)
@@ -91,7 +100,7 @@ const FormContent: React.FC = () => {
 					comment,
 					extraValue,
 				})
-				Alert.alert('성공', '새 목표를 설정하였습니다. 화이팅!', [
+				Alert.alert('설정 완료', '새 목표를 설정하였습니다. 화이팅!', [
 					{
 						text: '확인',
 						onPress: () => {
@@ -113,7 +122,9 @@ const FormContent: React.FC = () => {
 			<View>
 				<Label>운동 종목</Label>
 				<RGModalSelection
-					options={workoutTypesQuery.data}
+					options={workoutTypesQuery.data.filter(
+						(w) => !w.tags.some((k) => k === 'ASSESSED'),
+					)}
 					renderItem={({ item, selected }) => (
 						<View
 							style={css`

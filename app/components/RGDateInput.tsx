@@ -25,7 +25,7 @@ const RGDatePicker: React.FC<Props> = (props) => {
 		...passProps
 	} = props
 
-	const [date, setDate] = useState(passProps.date ?? new Date())
+	const [date, setDate] = useState(passProps.date)
 	const [open, setOpen] = useState(false)
 
 	return (
@@ -63,7 +63,7 @@ const RGDatePicker: React.FC<Props> = (props) => {
 				modal
 				mode="date"
 				open={open}
-				date={date}
+				date={date ?? new Date()}
 				onCancel={() => {
 					setOpen(false)
 					onCancel?.()

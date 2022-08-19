@@ -217,8 +217,13 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 				<Spacer y={16} />
 				<RGDatePicker
 					date={form.watch('birthday')}
-					onConfirm={(date) => form.setValue('birthday', date)}
+					onConfirm={(date) =>
+						form.setValue('birthday', date, {
+							shouldValidate: true,
+						})
+					}
 					label="생년월일"
+					placeholder="생년월일을 입력해주세요"
 				/>
 				<Spacer y={16} />
 				<Controlled.RGDropDown
@@ -273,7 +278,9 @@ const SignupScreen: React.FC<Props> = ({ navigation, route }) => {
 									})
 									id = res.id
 								}
-								form.setValue('baseId', id)
+								form.setValue('baseId', id, {
+									shouldValidate: true,
+								})
 							},
 						})
 					}
