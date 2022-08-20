@@ -10,7 +10,7 @@ import { verifyJWT } from '@/utils/jwt'
 import { trpc } from '@/utils/trpc'
 
 export const BACKEND_BASE_URL =
-	Constants.manifest?.extra?.backendBaseURL ?? 'https://3030.esinx.net'
+	Constants.manifest?.extra?.backendBaseURL ?? 'https://rokagym-api.esinx.net'
 
 const TRPCProvider: React.FC = ({ children }) => {
 	const refreshTokenRef = useCurrentAtomValue(refreshTokenAtom)

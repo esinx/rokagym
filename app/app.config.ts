@@ -50,6 +50,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 		],
 	],
 	extra: {
-		backendBaseURL: process.env.BACKEND_BASE_URL,
+		backendBaseURL:
+			process.env.BACKEND_BASE_URL ?? 'https://rokagym-api.esinx.net',
 	},
 })
