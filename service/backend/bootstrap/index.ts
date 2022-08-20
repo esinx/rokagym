@@ -89,6 +89,39 @@ const main = async () => {
 				unit: 'DISTANCE',
 			})
 		}
+
+		if (!res.some((o) => o.id === 'squat')) {
+			items.push({
+				id: 'squat',
+				name: '스쿼트',
+				detailedName: '스쿼트',
+				goalDirection: 'MORE',
+				tags: ['WEIGHT', 'CUSTOM'],
+				unit: 'RM',
+			})
+		}
+
+		if (!res.some((o) => o.id === 'legpress')) {
+			items.push({
+				id: 'legpress',
+				name: '레그프레스',
+				detailedName: '레그프레스',
+				goalDirection: 'MORE',
+				tags: ['WEIGHT', 'CUSTOM'],
+				unit: 'RM',
+			})
+		}
+
+		if (!res.some((o) => o.id === 'deadlift')) {
+			items.push({
+				id: 'deadlift',
+				name: '데드리프트',
+				detailedName: '데드리프트',
+				goalDirection: 'MORE',
+				tags: ['WEIGHT', 'CUSTOM'],
+				unit: 'RM',
+			})
+		}
 		if (items.length > 0) {
 			console.log(`[bootstrap] creating default workout types...`)
 			await prisma.workoutType.createMany({
