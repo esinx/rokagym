@@ -406,24 +406,24 @@ const main = async () => {
 
 	// uncomment to make new workout data for today
 
-	// const workoutLogRes = await Promise.all(
-	// 	dailyWorkoutResult.map(async ([email, results]) => {
-	// 		const _client = authorizedClient(credentials[email].accessToken)
-	// 		return await Promise.all(
-	// 			results.map(
-	// 				async (result) =>
-	// 					await _client.mutation('workout.logWorkout', {
-	// 						isVerified: true,
-	// 						comment:
-	// 							'auto-generated random dummy data for fulfilling daily goal',
-	// 						value: result.value,
-	// 						workoutTypeId: result.workoutTypeId,
-	// 						duration: 600,
-	// 					}),
-	// 			),
-	// 		)
-	// 	}),
-	// )
+	const workoutLogRes = await Promise.all(
+		dailyWorkoutResult.map(async ([email, results]) => {
+			const _client = authorizedClient(credentials[email].accessToken)
+			return await Promise.all(
+				results.map(
+					async (result) =>
+						await _client.mutation('workout.logWorkout', {
+							isVerified: true,
+							comment:
+								'auto-generated random dummy data for fulfilling daily goal',
+							value: result.value,
+							workoutTypeId: result.workoutTypeId,
+							duration: 600,
+						}),
+				),
+			)
+		}),
+	)
 
 	// randomly generate assessment data
 	const randomUsers = shuffle(Object.values(credentials)).slice(0, 5)
