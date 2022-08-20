@@ -76,7 +76,7 @@ const FormContent: React.FC = () => {
 						control={control}
 						name="value"
 						placeholder="50개"
-						keyboardType="numeric"
+						keyboardType="number-pad"
 					/>
 				)
 		}

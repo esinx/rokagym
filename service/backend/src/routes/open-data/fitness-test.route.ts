@@ -1,6 +1,8 @@
+import { DateTime } from 'luxon'
 import { z } from 'zod'
 
 import fetchOpenData, { OpenDataAPI } from '@/utils/fetchOpenData'
+import createAuthorizedRouter from '@/utils/routers/createAuthorizedRouter'
 import createRouter from '@/utils/routers/createRouter'
 
 const TestType = z.enum(['2m-pushup', '2m-situp', '3km-run', 'unknown'])
@@ -103,10 +105,44 @@ const fitnessTestDataAPI: OpenDataAPI<
 	},
 }
 
-const fitnessTestDataRoute = createRouter().query('getFitnessTestData', {
-	input: z.void(),
-	output: fitnessTestDataOutput,
-	resolve: async () => fetchOpenData(fitnessTestDataAPI),
-})
+const getKoreanAgeFromBirthday = (date: Date | string) =>
+	Math.floor(
+		-1 *
+			(typeof date === 'string'
+				? DateTime.fromISO(date)
+				: DateTime.fromJSDate(date)
+			)
+				.diffNow()
+				.as('years') +
+			1,
+	)
+
+const userFitnessTestDataRoute = createAuthorizedRouter().query(
+	'getUserFitnessTestData',
+	{
+		input: z.void(),
+		resolve: async ({ ctx: { user, prisma } }) => {
+			const userData = await prisma.user.findUniqueOrThrow({
+				where: {
+					id: user.id,
+				},
+			})
+			const data = await fetchOpenData(fitnessTestDataAPI)
+			return data.filter(({ ageRange }) => {
+				const [min, max] = ageRange
+				const koreanAge = getKoreanAgeFromBirthday(userData.birthday)
+				return koreanAge >= min && koreanAge <= max
+			})
+		},
+	},
+)
+
+const fitnessTestDataRoute = createRouter()
+	.query('getFitnessTestData', {
+		input: z.void(),
+		output: fitnessTestDataOutput,
+		resolve: async () => fetchOpenData(fitnessTestDataAPI),
+	})
+	.merge(userFitnessTestDataRoute)
 
 export default fitnessTestDataRoute

@@ -1,7 +1,7 @@
 import { css } from '@emotion/native'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useState } from 'react'
 import { Text, View } from 'react-native'
 import { MaterialTabBar, Tabs } from 'react-native-collapsible-tab-view'
 import { PressableOpacity } from 'react-native-pressable-opacity'
@@ -11,6 +11,7 @@ import AsyncBoundary from '@/components/AsyncBoundary'
 import ErrorBox from '@/components/ErrorBox'
 import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
 import Spinner from '@/components/Spinner'
+import { useUserCurrentFitnessData } from '@/hooks/get-grade-from-fitness-data'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
 import getKoreanAgeFromBirthday from '@/utils/korean-age'
@@ -99,38 +100,36 @@ const groupAgeFitnessTestData = (age: number) => (data: FitnessTestData[]) => {
 
 type StringTuple = [string, string]
 
+const GRADES = ['특급', '1급', '2급', '3급', '무급', '-급']
+
 const FitnessTestDataTab: React.FC = () => {
 	const fitnessQuery = trpc.useQuery(['opendata.getFitnessTestData'])
 	const profileQuery = trpc.useQuery(['user.profile'])
+	const grade = useUserCurrentFitnessData()
+
 	if (!fitnessQuery.data || !profileQuery.data) return null
 
 	const koreanAge = getKoreanAgeFromBirthday(profileQuery.data.birthday)
-	const processedData = useMemo(
-		() =>
-			fitnessQuery.data.map(({ range, ...rest }) => ({
-				...rest,
-				range: (() => {
-					switch (rest.type) {
-						case '3km-run':
-							return (
-								range[1] === '00:01'
-									? ['00:00', range[0]]
-									: range[1] === '180:00'
-									? [range[0], '']
-									: range
-							) as StringTuple
-						case '2m-pushup':
-						case '2m-situp':
-							return (
-								range[1] === '999' ? [range[0], ''] : range
-							) as StringTuple
-					}
-					return range
-				})(),
-			})),
-		[fitnessQuery.data],
-	)
-	const TABS = useMemo(() => {
+	const processedData = fitnessQuery.data.map(({ range, ...rest }) => ({
+		...rest,
+		range: (() => {
+			switch (rest.type) {
+				case '3km-run':
+					return (
+						range[1] === '00:01'
+							? ['00:00', range[0]]
+							: range[1] === '180:00'
+							? [range[0], '']
+							: range
+					) as StringTuple
+				case '2m-pushup':
+				case '2m-situp':
+					return (range[1] === '999' ? [range[0], ''] : range) as StringTuple
+			}
+			return range
+		})(),
+	}))
+	const TABS = (() => {
 		const groupData = groupAgeFitnessTestData(koreanAge)
 		return [
 			{
@@ -152,7 +151,7 @@ const FitnessTestDataTab: React.FC = () => {
 				),
 			},
 		]
-	}, [processedData, koreanAge])
+	})()
 
 	return (
 		<Tabs.Container
@@ -199,7 +198,7 @@ const FitnessTestDataTab: React.FC = () => {
 								line-height: 72px;
 							`}
 						>
-							-급
+							{grade}
 						</Text>
 					</View>
 				</View>

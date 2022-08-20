@@ -6,6 +6,26 @@ import fetch from 'cross-fetch'
 import type { AppRouter } from '@/app'
 import server from '@/server'
 
+function shuffle<T extends Array<any>>(array: T): T {
+	let currentIndex = array.length,
+		randomIndex
+
+	// While there remain elements to shuffle.
+	while (currentIndex != 0) {
+		// Pick a remaining element.
+		randomIndex = Math.floor(Math.random() * currentIndex)
+		currentIndex--
+
+		// And swap it with the current element.
+		;[array[currentIndex], array[randomIndex]] = [
+			array[randomIndex],
+			array[currentIndex],
+		]
+	}
+
+	return array
+}
+
 const PORT = Number(process.env.PORT ?? 13800)
 
 type GroupName =
@@ -386,32 +406,53 @@ const main = async () => {
 
 	// uncomment to make new workout data for today
 
+	// const workoutLogRes = await Promise.all(
+	// 	dailyWorkoutResult.map(async ([email, results]) => {
+	// 		const _client = authorizedClient(credentials[email].accessToken)
+	// 		return await Promise.all(
+	// 			results.map(
+	// 				async (result) =>
+	// 					await _client.mutation('workout.logWorkout', {
+	// 						isVerified: true,
+	// 						comment:
+	// 							'auto-generated random dummy data for fulfilling daily goal',
+	// 						value: result.value,
+	// 						workoutTypeId: result.workoutTypeId,
+	// 						duration: 600,
+	// 					}),
+	// 			),
+	// 		)
+	// 	}),
+	// )
+
+	// randomly generate assessment data
+	const randomUsers = shuffle(Object.values(credentials)).slice(0, 5)
 	const workoutLogRes = await Promise.all(
-		dailyWorkoutResult.map(async ([email, results]) => {
-			const _client = authorizedClient(credentials[email].accessToken)
-			return await Promise.all(
-				results.map(
-					async (result) =>
-						await _client.mutation('workout.logWorkout', {
-							isVerified: true,
-							comment:
-								'auto-generated random dummy data for fulfilling daily goal',
-							value: result.value,
-							workoutTypeId: result.workoutTypeId,
-							duration: 600,
-						}),
-				),
-			)
+		randomUsers.map((user) => {
+			const _client = authorizedClient(user.accessToken)
+			const runValue = 11 * 60 + Math.floor(Math.random() * 2 * 60)
+			return Promise.all([
+				_client.mutation('workout.logWorkout', {
+					isVerified: true,
+					duration: runValue,
+					value: runValue,
+					workoutTypeId: '3km-run',
+				}),
+				_client.mutation('workout.logWorkout', {
+					isVerified: true,
+					duration: runValue,
+					value: 80 + Math.floor(Math.random() * 60),
+					workoutTypeId: '2m-pushup',
+				}),
+				_client.mutation('workout.logWorkout', {
+					isVerified: true,
+					duration: runValue,
+					value: 90 + Math.floor(Math.random() * 60),
+					workoutTypeId: '2m-situp',
+				}),
+			])
 		}),
 	)
-
-	const result = await authorizedClient(
-		credentials['shines@gmail.com'].accessToken,
-	).query('workout.getDailyGoalPercent', {
-		workoutTypeIds: ['run', 'pushup', 'situp'],
-	})
-
-	console.log(result)
 
 	server.close()
 }

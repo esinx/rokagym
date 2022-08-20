@@ -41,6 +41,8 @@ import { navigationRef } from '@/utils/root-navigation'
 import { InferQueryOutput } from '@/utils/trpc'
 import { WorkoutType } from '@/utils/types'
 
+import AssessmentRecordScreen from './screens/AssessmentRecordScreen'
+
 type Base = InferQueryOutput<'base.baseLookup'> extends (infer E)[] ? E : never
 
 export type RootStackParamList = {
@@ -56,6 +58,13 @@ export type RootStackParamList = {
 		workoutType: WorkoutType
 	}
 	AssessmentSession: undefined
+	AssessmentRecordManual: undefined
+	AssessmentRecord: {
+		records: {
+			workoutTypeId: string
+			value: number
+		}[]
+	}
 	TrainingGoalCreation: {
 		daily?: boolean
 	}
@@ -287,6 +296,30 @@ const App = () => {
 								headerStyle: {
 									shadowOpacity: 0,
 								},
+								headerTitleStyle: {
+									display: 'none',
+								},
+							}}
+						/>
+						<RootStack.Screen
+							name="AssessmentRecordManual"
+							component={AssessmentRecordScreen}
+							options={{
+								headerBackTitle: '돌아가기',
+								headerStyle: {
+									shadowOpacity: 0,
+								},
+								headerTitleStyle: {
+									display: 'none',
+								},
+							}}
+						/>
+						<RootStack.Screen
+							name="AssessmentRecord"
+							component={AssessmentRecordScreen}
+							options={{
+								headerShown: false,
+								gestureEnabled: false,
 								headerTitleStyle: {
 									display: 'none',
 								},

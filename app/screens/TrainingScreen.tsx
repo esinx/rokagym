@@ -2,7 +2,7 @@ import { css } from '@emotion/native'
 import { FontAwesome } from '@expo/vector-icons'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { SafeAreaView, SectionList, Text, View } from 'react-native'
 
 import { RootStackParamList } from '@/App'
@@ -14,6 +14,8 @@ import Rings from '@/components/Rings'
 import Spacer from '@/components/Spacer'
 import Spinner from '@/components/Spinner'
 import WorkoutIcon from '@/components/WorkoutIcon'
+import { useGradeFromFitnessData } from '@/hooks/get-grade-from-fitness-data'
+import { secondsToTimestamp } from '@/utils'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
 import { InferQueryOutput, trpc } from '@/utils/trpc'
@@ -120,6 +122,95 @@ const WorkoutEntry: React.FC<{
 	)
 }
 
+const AssessmentEntry: React.FC<{
+	data: ArrayElement<
+		NonNullable<InferQueryOutput<'workout.getMostRecentAssessment'>>
+	>
+	grade?: string
+}> = ({ data, grade }) => (
+	<View
+		style={css`
+			background: ${COLOR.GRAY(50)};
+			padding: 12px;
+			border-radius: 12px;
+			margin-bottom: 12px;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		`}
+	>
+		<View
+			style={css`
+				flex-direction: row;
+				align-items: center;
+			`}
+		>
+			<View
+				style={css`
+					background: ${COLOR.BRAND(200)};
+					width: 48px;
+					height: 48px;
+					border-radius: 16px;
+					justify-content: center;
+					align-items: center;
+				`}
+			>
+				<WorkoutIcon
+					workoutTypeId={data.workoutTypeId}
+					width={24}
+					height={24}
+					color={'#fff'}
+				/>
+			</View>
+			<View
+				style={css`
+					margin-left: 8px;
+				`}
+			>
+				<Text
+					style={css`
+						font-family: ${FONT.SPOQA('BOLD')};
+						font-size: 18px;
+					`}
+				>
+					{data.type.detailedName}
+				</Text>
+			</View>
+		</View>
+		<View
+			style={css`
+				flex-direction: row;
+				align-items: center;
+			`}
+		>
+			<Text
+				style={css`
+					font-family: ${FONT.SPOQA('BOLD')};
+					font-size: 18px;
+					color: ${COLOR.GRAY(400)};
+				`}
+			>
+				{data.type.id === '3km-run'
+					? secondsToTimestamp(data.value)
+					: data.value}
+				{unitToKorean(data.type.unit)}
+			</Text>
+			{grade && (
+				<Text
+					style={css`
+						margin-left: 4px;
+						font-family: ${FONT.SPOQA('BOLD')};
+						font-size: 18px;
+						color: ${COLOR.BRAND(200)};
+					`}
+				>
+					{grade}
+				</Text>
+			)}
+		</View>
+	</View>
+)
+
 const Content: React.FC = () => {
 	const navigation = useNavigation<StackNavigationProp<RootStackParamList>>()
 	const dailyGoalQuery = trpc.useQuery(['workout.getAllDailyGoals'])
@@ -134,18 +225,47 @@ const Content: React.FC = () => {
 			refetchOnWindowFocus: true,
 		},
 	)
+	const assessmentQuery = trpc.useQuery(['workout.getMostRecentAssessment', {}])
+	const { getGradeFromFitnessData } = useGradeFromFitnessData()
+	const [gradeMap, setGradeMap] = useState<Record<string, string>>()
 
 	const [isPullToRefresh, setIsPullToRefresh] = useState(false)
+
+	useEffect(() => {
+		;(async () => {
+			if (!assessmentQuery.data) return
+			const run = assessmentQuery.data.find(
+				(d) => d.workoutTypeId === '3km-run',
+			)
+			const situp = assessmentQuery.data.find(
+				(d) => d.workoutTypeId === '2m-situp',
+			)
+			const pushup = assessmentQuery.data.find(
+				(d) => d.workoutTypeId === '2m-pushup',
+			)
+			const grades = await Promise.all([
+				run ? getGradeFromFitnessData('3km-run', run.value) : '-급',
+				situp ? getGradeFromFitnessData('2m-situp', situp.value) : '-급',
+				pushup ? getGradeFromFitnessData('2m-pushup', pushup.value) : '-급',
+			])
+			setGradeMap({
+				'3km-run': grades[0],
+				'2m-situp': grades[1],
+				'2m-pushup': grades[2],
+			})
+		})()
+	}, [assessmentQuery.data])
 
 	useFocusEffect(
 		useCallback(() => {
 			setIsPullToRefresh(false)
 			dailyGoalQuery.refetch()
 			progressQuery.refetch()
+			assessmentQuery.refetch()
 		}, []),
 	)
 
-	if (!dailyGoalQuery.data || !progressQuery.data) {
+	if (!dailyGoalQuery.data || !progressQuery.data || !assessmentQuery.data) {
 		return null
 	}
 	// ring: run / pushup / situp
@@ -169,6 +289,7 @@ const Content: React.FC = () => {
 				setIsPullToRefresh(true)
 				progressQuery.refetch()
 				dailyGoalQuery.refetch()
+				assessmentQuery.refetch()
 			}}
 			contentContainerStyle={css`
 				padding: 20px;
@@ -182,15 +303,28 @@ const Content: React.FC = () => {
 				},
 				{
 					key: 'daily-training',
-					data: progressQuery.data!,
+					data: progressQuery.data as any,
 					keyExtractor: ({ workoutTypeId }) => workoutTypeId,
-					renderItem: ({ item }) => (
-						<WorkoutEntry key={item.workoutTypeId} data={item} />
-					),
+					renderItem: (({
+						item,
+					}: {
+						item: ArrayElement<typeof progressQuery.data>
+					}) => <WorkoutEntry key={item.workoutTypeId} data={item} />) as any,
 				},
 				{
 					key: 'test-records',
-					data: [],
+					data: assessmentQuery.data as any,
+					keyExtractor: ({ workoutTypeId }) => workoutTypeId,
+					renderItem: (({
+						item,
+					}: {
+						item: ArrayElement<typeof assessmentQuery.data>
+					}) => (
+						<AssessmentEntry
+							data={item}
+							grade={gradeMap?.[item.workoutTypeId]}
+						/>
+					)) as any,
 				},
 			]}
 			renderSectionHeader={({ section: { key } }) => {
@@ -397,9 +531,7 @@ const Content: React.FC = () => {
 										align-items: center;
 									`}
 									onPress={() => {
-										navigation.push('TrainingGoalCreation', {
-											daily: true,
-										})
+										navigation.push('AssessmentRecordManual')
 									}}
 								>
 									<FontAwesome name="plus" size={12} color="#fff" />

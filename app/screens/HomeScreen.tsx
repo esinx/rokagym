@@ -27,6 +27,7 @@ import HomeNavigationBar from '@/components/HomeNavigationBar'
 import PressableHighlight from '@/components/PressableHighlight'
 import Spacer from '@/components/Spacer'
 import Spinner from '@/components/Spinner'
+import { useUserCurrentFitnessData } from '@/hooks/get-grade-from-fitness-data'
 import { hasValidTokensAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
@@ -357,6 +358,7 @@ const BottomSheetContent = () => {
 
 const Header = () => {
 	const profileQuery = trpc.useQuery(['user.profile'])
+	const grade = useUserCurrentFitnessData()
 
 	useFocusEffect(
 		useCallback(() => {
@@ -375,7 +377,7 @@ const Header = () => {
 					align-items: center;
 				`}
 			>
-				<Badge color="#fec02f">특급전사</Badge>
+				{grade === '특급' && <Badge color="#fec02f">특급전사</Badge>}
 			</View>
 			<Text
 				style={css`

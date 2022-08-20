@@ -8,6 +8,9 @@ import getWorkoutTypesRoute from '@/routes/workout/get-workout-types.route'
 import logWorkoutRoute from '@/routes/workout/log-workout.route'
 import createRouter from '@/utils/routers/createRouter'
 
+import assessmentRoutes from './assessment-records.route'
+import hallOfFameRoute from './hall-of-fame.route'
+
 const workoutRoutes = createRouter()
 	.merge(createWorkoutGoalRoute)
 	.merge(createDailyWorkoutGoalRoute)
@@ -17,5 +20,7 @@ const workoutRoutes = createRouter()
 	.merge(getDailyGoalPercentRoute)
 	.merge(getWorkoutTypesRoute)
 	.merge(getMostRecentLogRoute)
+	.merge(assessmentRoutes)
+	.merge(hallOfFameRoute)
 
 export default workoutRoutes

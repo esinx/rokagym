@@ -396,6 +396,8 @@ PODS:
   - React-jsinspector (0.68.2)
   - React-logger (0.68.2):
     - glog
+  - react-native-animateable-text (0.10.1):
+    - React-Core
   - react-native-date-picker (4.2.5):
     - React-Core
   - react-native-flipper (0.157.0):
@@ -577,6 +579,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-animateable-text (from `../node_modules/react-native-animateable-text`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-flipper (from `../node_modules/react-native-flipper`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -699,6 +702,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-animateable-text:
+    :path: "../node_modules/react-native-animateable-text"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
   react-native-flipper:
@@ -797,6 +802,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
   React-logger: a0833912d93b36b791b7a521672d8ee89107aff1
+  react-native-animateable-text: f187075a99c67e451553873db1fc14aeeb0ed711
   react-native-date-picker: 55193347d8d0f40948f441ffd4e5db6f0a8fbe13
   react-native-flipper: cc9cdf47db2bbe0d9227eeec4f93e2290e55674b
   react-native-pager-view: b1914469643f40042e65d78cbf3d3dfebd6fb0d9

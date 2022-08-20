@@ -28,7 +28,7 @@ const assessmentRoutes = createAuthorizedRouter()
 					type: true,
 				},
 				distinct: ['workoutTypeId'],
-				take: 1,
+				take: 3,
 			})
 			return mostRecentLogs
 		},

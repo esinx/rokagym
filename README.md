@@ -55,10 +55,7 @@
 ## TODO
 
 - Frontend
-
-  - Workout Log (after workout) screen
-  - Assessment Screen
-
+  - Open Source Notice
   * Workout Calendar
   * Training Goal History
 
