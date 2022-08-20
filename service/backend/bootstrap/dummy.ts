@@ -427,7 +427,7 @@ const main = async () => {
 
 	// randomly generate assessment data
 	const randomUsers = shuffle(Object.values(credentials)).slice(0, 5)
-	const workoutLogRes = await Promise.all(
+	const workoutLogResAssessed = await Promise.all(
 		randomUsers.map((user) => {
 			const _client = authorizedClient(user.accessToken)
 			const runValue = 11 * 60 + Math.floor(Math.random() * 2 * 60)
