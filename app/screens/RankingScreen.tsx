@@ -327,6 +327,7 @@ const HallOfFameView: React.FC = () => {
 				>
 					{[run, situp, pushup].map((rankingData) => (
 						<View
+							key={rankingData[0].workoutTypeId}
 							style={css`
 								overflow: hidden;
 								margin-bottom: 12px;
@@ -356,6 +357,7 @@ const HallOfFameView: React.FC = () => {
 							>
 								{rankingData.map((data, idx) => (
 									<Bar
+										key={String(idx)}
 										index={idx}
 										color={COLOR.BRAND(((3 - idx) * 100) as any)}
 										data={data}

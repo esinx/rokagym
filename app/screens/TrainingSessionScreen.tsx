@@ -186,7 +186,7 @@ const TrainingSessionScreen: React.FC<Props> = ({ navigation, route }) => {
 			</View>
 			<View>
 				<Button
-					disabled={started && currentDuration < 10}
+					disabled={started && currentDuration < 120}
 					backgroundColor="#FFF"
 					onPress={() => {
 						if (!started) {

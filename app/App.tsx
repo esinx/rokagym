@@ -319,7 +319,6 @@ const App = () => {
 							component={AssessmentRecordScreen}
 							options={{
 								headerShown: false,
-								gestureEnabled: false,
 								headerTitleStyle: {
 									display: 'none',
 								},

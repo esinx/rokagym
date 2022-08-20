@@ -19,31 +19,10 @@ import Spacer from '@/components/Spacer'
 import { accessTokenAtom, refreshTokenAtom } from '@/store/atoms/token'
 import COLOR from '@/utils/colors'
 import FONT from '@/utils/fonts'
+import { RANKS } from '@/utils/ranks'
 import { InferQueryOutput, trpc } from '@/utils/trpc'
 
 type Base = InferQueryOutput<'base.baseLookup'> extends (infer E)[] ? E : never
-
-const RANKS = [
-	'이병',
-	'일병',
-	'상병',
-	'병장',
-	'하사',
-	'중사',
-	'상사',
-	'원사',
-	'준위',
-	'소위',
-	'중위',
-	'대위',
-	'소령',
-	'중령',
-	'대령',
-	'준장',
-	'소장',
-	'중장',
-	'대장',
-]
 
 type Props = StackScreenProps<RootStackParamList, 'Login'>
 

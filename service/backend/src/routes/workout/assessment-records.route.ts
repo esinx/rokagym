@@ -27,6 +27,9 @@ const assessmentRoutes = createAuthorizedRouter()
 				include: {
 					type: true,
 				},
+				orderBy: {
+					timestamp: 'desc',
+				},
 				distinct: ['workoutTypeId'],
 				take: 3,
 			})

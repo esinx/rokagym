@@ -12,7 +12,6 @@ import FocusAwareStatusBar from '@/components/FocusAwareStatusBar'
 import PressableHighlight from '@/components/PressableHighlight'
 import Rings from '@/components/Rings'
 import Spacer from '@/components/Spacer'
-import Spinner from '@/components/Spinner'
 import WorkoutIcon from '@/components/WorkoutIcon'
 import { useGradeFromFitnessData } from '@/hooks/get-grade-from-fitness-data'
 import { secondsToTimestamp } from '@/utils'
@@ -614,16 +613,6 @@ const TrainingScreen = () => {
 							/>
 						</View>
 					)}
-					SuspenseFallback={
-						<View
-							style={css`
-								align-items: center;
-								justify-content: center;
-							`}
-						>
-							<Spinner />
-						</View>
-					}
 				>
 					<Content />
 				</AsyncBoundary>

@@ -45,6 +45,7 @@ const AsyncBoundary: React.FC<AsyncBoundaryProps> = ({
 				SuspenseFallback ?? (
 					<View
 						style={css`
+							flex: 1;
 							align-items: center;
 							justify-content: center;
 						`}

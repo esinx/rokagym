@@ -18,9 +18,9 @@ export const getDiscomfortIndexComment = (idx: number) => {
 		return `활동하기에 조금 불편한 환경입니다. 무리하지 않도록 주의하세요.`
 	}
 	if (idx <= 80) {
-		return `활동하기에 불편한 환경입니다. 건강상태에 주의하고 무리하지 않도록 주의하세요.`
+		return `활동하기에 불편한 환경입니다. 건강상태를 수시로 확인하고 무리하지 않도록 주의하세요.`
 	}
-	return `대부분의 사람들이 불편함을 느끼는 환경입니다. 호흡 등 건강상태에 주의하고 무리하지 않도록 주의하세요.`
+	return `대부분의 사람들이 불편함을 느끼는 환경입니다. 호흡 등 건강상태를 수시로 확인하고 무리하지 않도록 주의하세요.`
 }
 
 export const getApparentTemperatureComment = (temp: number) => {
