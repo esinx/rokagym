@@ -17,7 +17,6 @@
 ```
 - app
 - database
-- playground
 - service
   - backend
   - daily-meal-data: fetch daily meal data using serverless + AWS EventBridge
@@ -30,14 +29,14 @@
 
 - tRPC: fullstack type safety를 보장하기 위한 TypeScript용 RPC 라이브러리
 - Prisma: TypeScript에 최적화된 ORM
-- Fastify: 가장 빠른 HTTP 서버
-- jose: jwt 관련 서비스 제공을 위한 라이브러리
+- Fastify: 빠른 HTTP 서버
+- jsonwebtoken: jwt 관련 서비스 제공을 위한 라이브러리
 - jest: e2e(end-to-end) 테스팅 라이브러리
 
 ### 배포
 
 - AWS Lambda: 서버리스 아키텍쳐를 활용한 배포 방식
-- AWS EventBridge: 매일 자정에 실행하는 함수들을 스케쥴링
+- AWS EventBridge: 매일 특정 시간에 반복 실행하는 함수들을 스케쥴링
 - AWS DynamoDB: 빠르고 간편한 문서형 DB (데이터/연산 캐싱을 위해 사용)
 - AWS Aurora Serverless: 서버리스 아키텍쳐와 시너지를 이루는 SQL형 데이터베이스
 - Expo EAS: Expo를 통해 빠르게 앱스토어/플레이스토어에 배포
@@ -58,7 +57,3 @@
   - Open Source Notice
   * Workout Calendar
   * Training Goal History
-
-- Backend
-  - Workout Total by MilGroup
-  - Top 3 Records from Assessment by MilGroup "Hall of Fame"
